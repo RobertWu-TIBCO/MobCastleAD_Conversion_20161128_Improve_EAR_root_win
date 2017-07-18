@@ -1,0 +1,368 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<pd:ProcessDefinition xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:pd="http://xmlns.tibco.com/bw/process/2003" xmlns:ns="http://www.tibco.com/pe/DeployedVarsType" xmlns:ns2="http://www.tibco.com/namespaces/tnt/plugins/file" xmlns:tib="http://www.tibco.com/bw/xslt/custom-functions" xmlns:ns3="http://www.tibco.com/namespaces/tnt/plugins/file/v2">
+    <pd:name>Level3Server/RefreshConversionLog_Manual.process</pd:name>
+    <pd:startName>Start</pd:startName>
+    <pd:startX>47</pd:startX>
+    <pd:startY>34</pd:startY>
+    <pd:returnBindings/>
+    <pd:endName>End</pd:endName>
+    <pd:endX>837</pd:endX>
+    <pd:endY>96</pd:endY>
+    <pd:errorSchemas/>
+    <pd:processVariables/>
+    <pd:targetNamespace>http://xmlns.example.com/1474302164280</pd:targetNamespace>
+    <pd:activity name="Rename File">
+        <pd:type>com.tibco.plugin.file.FileRenameActivity</pd:type>
+        <pd:resourceType>ae.activities.FileRenameActivity</pd:resourceType>
+        <pd:x>182</pd:x>
+        <pd:y>43</pd:y>
+        <config>
+            <createMissingDirectories>true</createMissingDirectories>
+            <overwrite>true</overwrite>
+        </config>
+        <pd:inputBindings>
+            <ns2:RenameActivityConfig>
+                <fromFileName>
+                    <xsl:value-of select="$_globalVariables/ns:GlobalVariables/Log/ConversionLog"/>
+                </fromFileName>
+                <toFileName>
+                    <xsl:value-of select="concat(tib:substring-before-last($_globalVariables/ns:GlobalVariables/Log/ConversionLog,&quot;\&quot;),&quot;\&quot;,substring-before(current-date(), &quot;+&quot;),&quot;\conversion.log&quot;,&quot;_&quot;,substring-before(current-dateTime(), &quot;:&quot;))"/>
+                </toFileName>
+            </ns2:RenameActivityConfig>
+        </pd:inputBindings>
+    </pd:activity>
+    <pd:activity name="Create File">
+        <pd:type>com.tibco.plugin.file.FileCreateActivity</pd:type>
+        <pd:resourceType>ae.activities.FileCreateActivity</pd:resourceType>
+        <pd:x>338</pd:x>
+        <pd:y>40</pd:y>
+        <config>
+            <overwrite>true</overwrite>
+            <createMissingDirectories>true</createMissingDirectories>
+        </config>
+        <pd:inputBindings>
+            <ns2:CreateActivityInputClass>
+                <fileName>
+                    <xsl:value-of select="$_globalVariables/ns:GlobalVariables/Log/ConversionLog"/>
+                </fileName>
+            </ns2:CreateActivityInputClass>
+        </pd:inputBindings>
+    </pd:activity>
+    <pd:activity name="GeneratePyhtonReport">
+        <pd:type>com.tibco.plugin.cmdexec.CmdExecActivity</pd:type>
+        <pd:resourceType>ae.activities.CmdExecActivity</pd:resourceType>
+        <pd:x>314</pd:x>
+        <pd:y>149</pd:y>
+        <config>
+            <outputToString>true</outputToString>
+            <lineSplit>None</lineSplit>
+        </config>
+        <pd:inputBindings>
+            <CmdInput>
+                <command>
+                    <xsl:value-of select="concat(&quot;python conversion_report.py &quot;,substring-after($Rename-File/ns2:RenameActivityOutput/fileInfo/fullName, &quot;\log\&quot;))"/>
+                </command>
+                <workingDirectory>
+                    <xsl:value-of select="&quot;E:\SoftWares\Project\log\&quot;"/>
+                </workingDirectory>
+            </CmdInput>
+        </pd:inputBindings>
+    </pd:activity>
+    <pd:activity name="Redis">
+        <pd:type>com.tibco.plugin.java.JavaActivity</pd:type>
+        <pd:resourceType>ae.javapalette.javaActivity</pd:resourceType>
+        <pd:x>46</pd:x>
+        <pd:y>152</pd:y>
+        <config>
+            <fileName>RefreshConversionLog_ManualRedis</fileName>
+            <packageName>Level3Server.RefreshConversionLog_Manual</packageName>
+            <fullsource>package Level3Server.RefreshConversionLog_Manual;
+import java.util.*;
+import java.io.*;
+import redis.clients.jedis.Jedis;     
+public class RefreshConversionLog_ManualRedis{
+/****** START SET/GET METHOD, DO NOT MODIFY *****/
+	protected String log = "";
+	protected Object logobj = null;
+	protected String[] allCampCounters = null;
+	protected String allconversioncounter = "";
+	public String getlog() {
+		return log;
+	}
+	public void setlog(String val) {
+		log = val;
+	}
+	public Object getlogobj() {
+		return logobj;
+	}
+	public void setlogobj(Object val) {
+		logobj = val;
+	}
+	public String[] getallCampCounters() {
+		return allCampCounters;
+	}
+	public void setallCampCounters(String[] val) {
+		allCampCounters = val;
+	}
+	public String getallconversioncounter() {
+		return allconversioncounter;
+	}
+	public void setallconversioncounter(String val) {
+		allconversioncounter = val;
+	}
+/****** END SET/GET METHOD, DO NOT MODIFY *****/
+	public RefreshConversionLog_ManualRedis() {
+	}
+	public void invoke() throws Exception {
+/* Available Variables: DO NOT MODIFY
+	Out : String log
+	Out : Object logobj
+	Out : String[] allCampCounters
+	Out : String allconversioncounter
+* Available Variables: DO NOT MODIFY *****/
+
+  Jedis jedis =  new Jedis("127.0.0.1",6379,100000); 
+	jedis.auth("!VMD1kult");
+	logobj=jedis.lrange("conversionLogList", 0, -1);
+	
+	log=logobj.toString();
+	log=log.replaceAll(", 20","20");
+allconversioncounter=jedis.hgetAll("conversionCounter").toString();
+allCampCounters=allconversioncounter.replaceAll("\\{","").replaceAll("\\}","").split(",");
+jedis.del("conversionLogList"); }
+}
+</fullsource>
+            <outputData>
+                <row>
+                    <fieldName>log</fieldName>
+                    <fieldType>string</fieldType>
+                    <fieldRequired>optional</fieldRequired>
+                </row>
+                <row>
+                    <fieldName>logobj</fieldName>
+                    <fieldType>ObjectReference</fieldType>
+                    <fieldRequired>optional</fieldRequired>
+                </row>
+                <row>
+                    <fieldName>allCampCounters</fieldName>
+                    <fieldType>string</fieldType>
+                    <fieldRequired>repeating</fieldRequired>
+                </row>
+                <row>
+                    <fieldName>allconversioncounter</fieldName>
+                    <fieldType>string</fieldType>
+                    <fieldRequired>optional</fieldRequired>
+                </row>
+            </outputData>
+            <byteCode>
+                <class>
+                    <name>RefreshConversionLog_ManualRedis</name>
+                    <byteCode>yv66vgAAADQAZwkAHQA9CQAdAD4JAB0APwkAHQBACgAeAEEIAEIHAEMIAEQDAAGGoAoABwBFCABGCgAHAEcIAEgF//////////8KAAcASQoAHgBKCABLCABMCgAbAE0IAE4KAAcATwgAUAgAUQgAUgoAGwBTBwBUCgAHAFUHAFYHAFcBAANsb2cBABJMamF2YS9sYW5nL1N0cmluZzsBAAZsb2dvYmoBABJMamF2YS9sYW5nL09iamVjdDsBAA9hbGxDYW1wQ291bnRlcnMBABNbTGphdmEvbGFuZy9TdHJpbmc7AQAUYWxsY29udmVyc2lvbmNvdW50ZXIBAAZnZXRsb2cBABQoKUxqYXZhL2xhbmcvU3RyaW5nOwEABENvZGUBAA9MaW5lTnVtYmVyVGFibGUBAAZzZXRsb2cBABUoTGphdmEvbGFuZy9TdHJpbmc7KVYBAAlnZXRsb2dvYmoBABQoKUxqYXZhL2xhbmcvT2JqZWN0OwEACXNldGxvZ29iagEAFShMamF2YS9sYW5nL09iamVjdDspVgEAEmdldGFsbENhbXBDb3VudGVycwEAFSgpW0xqYXZhL2xhbmcvU3RyaW5nOwEAEnNldGFsbENhbXBDb3VudGVycwEAFihbTGphdmEvbGFuZy9TdHJpbmc7KVYBABdnZXRhbGxjb252ZXJzaW9uY291bnRlcgEAF3NldGFsbGNvbnZlcnNpb25jb3VudGVyAQAGPGluaXQ+AQADKClWAQAGaW52b2tlAQAKRXhjZXB0aW9ucwcAWAEAClNvdXJjZUZpbGUBACVSZWZyZXNoQ29udmVyc2lvbkxvZ19NYW51YWxSZWRpcy5qYXZhDAAfACAMACEAIgwAIwAkDAAlACAMADYANwEAAAEAGXJlZGlzL2NsaWVudHMvamVkaXMvSmVkaXMBAAkxMjcuMC4wLjEMADYAWQEACSFWTUQxa3VsdAwAWgBbAQARY29udmVyc2lvbkxvZ0xpc3QMAFwAXQwAXgAnAQAELCAyMAEAAjIwDABfAGABABFjb252ZXJzaW9uQ291bnRlcgwAYQBiAQACXHsBAAJcfQEAASwMAGMAZAEAEGphdmEvbGFuZy9TdHJpbmcMAGUAZgEASUxldmVsM1NlcnZlci9SZWZyZXNoQ29udmVyc2lvbkxvZ19NYW51YWwvUmVmcmVzaENvbnZlcnNpb25Mb2dfTWFudWFsUmVkaXMBABBqYXZhL2xhbmcvT2JqZWN0AQATamF2YS9sYW5nL0V4Y2VwdGlvbgEAFyhMamF2YS9sYW5nL1N0cmluZztJSSlWAQAEYXV0aAEAJihMamF2YS9sYW5nL1N0cmluZzspTGphdmEvbGFuZy9TdHJpbmc7AQAGbHJhbmdlAQAmKExqYXZhL2xhbmcvU3RyaW5nO0pKKUxqYXZhL3V0aWwvTGlzdDsBAAh0b1N0cmluZwEACnJlcGxhY2VBbGwBADgoTGphdmEvbGFuZy9TdHJpbmc7TGphdmEvbGFuZy9TdHJpbmc7KUxqYXZhL2xhbmcvU3RyaW5nOwEAB2hnZXRBbGwBACMoTGphdmEvbGFuZy9TdHJpbmc7KUxqYXZhL3V0aWwvTWFwOwEABXNwbGl0AQAnKExqYXZhL2xhbmcvU3RyaW5nOylbTGphdmEvbGFuZy9TdHJpbmc7AQADZGVsAQAlKFtMamF2YS9sYW5nL1N0cmluZzspTGphdmEvbGFuZy9Mb25nOwAhAB0AHgAAAAQABAAfACAAAAAEACEAIgAAAAQAIwAkAAAABAAlACAAAAAKAAEAJgAnAAEAKAAAAB0AAQABAAAABSq0AAGwAAAAAQApAAAABgABAAAADAABACoAKwABACgAAAAiAAIAAgAAAAYqK7UAAbEAAAABACkAAAAKAAIAAAAPAAUAEAABACwALQABACgAAAAdAAEAAQAAAAUqtAACsAAAAAEAKQAAAAYAAQAAABIAAQAuAC8AAQAoAAAAIgACAAIAAAAGKiu1AAKxAAAAAQApAAAACgACAAAAFQAFABYAAQAwADEAAQAoAAAAHQABAAEAAAAFKrQAA7AAAAABACkAAAAGAAEAAAAYAAEAMgAzAAEAKAAAACIAAgACAAAABiortQADsQAAAAEAKQAAAAoAAgAAABsABQAcAAEANAAnAAEAKAAAAB0AAQABAAAABSq0AASwAAAAAQApAAAABgABAAAAHgABADUAKwABACgAAAAiAAIAAgAAAAYqK7UABLEAAAABACkAAAAKAAIAAAAhAAUAIgABADYANwABACgAAABHAAIAAQAAABsqtwAFKhIGtQABKgG1AAIqAbUAAyoSBrUABLEAAAABACkAAAAaAAYAAAAkAAQABwAKAAgADwAJABQACgAaACUAAQA4ADcAAgAoAAAAqQAHAAIAAAB1uwAHWRIIERjrEgm3AApMKxILtgAMVyorEg0JFAAOtgAQtQACKiq0AAK2ABG1AAEqKrQAARISEhO2ABS1AAEqKxIVtgAWtgARtQAEKiq0AAQSFxIGtgAUEhgSBrYAFBIZtgAatQADKwS9ABtZAxINU7YAHFexAAAAAQApAAAAIgAIAAAALgAPAC8AFgAwACQAMgAvADMAPgA0AEsANQBmADYAOQAAAAQAAQA6AAEAOwAAAAIAPA==</byteCode>
+                </class>
+            </byteCode>
+        </config>
+        <pd:inputBindings/>
+    </pd:activity>
+    <pd:activity name="Write File">
+        <pd:type>com.tibco.plugin.file.FileWriteActivity</pd:type>
+        <pd:resourceType>ae.activities.FileWriteActivity</pd:resourceType>
+        <pd:x>177</pd:x>
+        <pd:y>154</pd:y>
+        <config>
+            <encoding>text</encoding>
+            <compressFile>None</compressFile>
+            <append>true</append>
+            <createMissingDirectories>true</createMissingDirectories>
+        </config>
+        <pd:inputBindings>
+            <ns2:WriteActivityInputTextClass>
+                <fileName>
+                    <xsl:value-of select="$_globalVariables/ns:GlobalVariables/Log/ConversionLog"/>
+                </fileName>
+                <textContent>
+                    <xsl:value-of select="tib:substring-before-last(substring-after($Redis/javaCodeActivityOutput/log,&quot;[&quot;), &quot;]&quot;)"/>
+                </textContent>
+            </ns2:WriteActivityInputTextClass>
+        </pd:inputBindings>
+    </pd:activity>
+    <pd:group name="Group">
+        <pd:type>com.tibco.pe.core.LoopGroup</pd:type>
+        <pd:resourceType>ae.process.group</pd:resourceType>
+        <pd:x>410</pd:x>
+        <pd:y>30</pd:y>
+        <pd:width>331</pd:width>
+        <pd:height>143</pd:height>
+        <pd:collapsedWidth>57</pd:collapsedWidth>
+        <pd:collapsedHeight>70</pd:collapsedHeight>
+        <pd:groupVariables/>
+        <pd:joinToggle>inherit</pd:joinToggle>
+        <config>
+            <pd:groupType>inputLoop</pd:groupType>
+            <pd:serializable>false</pd:serializable>
+            <pd:over>$Redis/javaCodeActivityOutput/allCampCounters</pd:over>
+            <pd:iterationElementSlot>e</pd:iterationElementSlot>
+            <pd:indexSlot>i</pd:indexSlot>
+            <pd:activityOutputName/>
+            <pd:accumulateOutput>false</pd:accumulateOutput>
+        </config>
+        <pd:inputBindings/>
+        <pd:expanded>true</pd:expanded>
+        <pd:transition>
+            <pd:from>start</pd:from>
+            <pd:to>ReplaceEqualSimbol</pd:to>
+            <pd:lineType>Default</pd:lineType>
+            <pd:lineColor>-16777216</pd:lineColor>
+            <pd:conditionType>always</pd:conditionType>
+        </pd:transition>
+        <pd:transition>
+            <pd:from>WriteConversionCounterToDB</pd:from>
+            <pd:to>end</pd:to>
+            <pd:lineType>Default</pd:lineType>
+            <pd:lineColor>-16777216</pd:lineColor>
+            <pd:conditionType>always</pd:conditionType>
+        </pd:transition>
+        <pd:transition>
+            <pd:from>ReplaceEqualSimbol</pd:from>
+            <pd:to>WriteConversionCounterToDB</pd:to>
+            <pd:lineType>Default</pd:lineType>
+            <pd:lineColor>-16777216</pd:lineColor>
+            <pd:conditionType>always</pd:conditionType>
+        </pd:transition>
+        <pd:activity name="WriteConversionCounterToDB">
+            <pd:type>com.tibco.plugin.jdbc.JDBCGeneralActivity</pd:type>
+            <pd:resourceType>ae.activities.JDBCGeneralActivity</pd:resourceType>
+            <pd:x>642</pd:x>
+            <pd:y>93</pd:y>
+            <config>
+                <timeout>10</timeout>
+                <commit>false</commit>
+                <maxRows>100</maxRows>
+                <jdbcSharedConfig>/Level3Server/MySql.sharedjdbc</jdbcSharedConfig>
+            </config>
+            <pd:inputBindings>
+                <jdbcGeneralActivityInput>
+                    <statement>
+                        <xsl:value-of select="concat(&quot;insert into counter(camp_id,camp_conversioncounter) values(&quot;,$ReplaceEqualSimbol/javaCodeActivityOutput/out,&quot;) ON DUPLICATE KEY UPDATE camp_conversioncounter=&quot;,substring-after($ReplaceEqualSimbol/javaCodeActivityOutput/out,&quot;,&quot;))"/>
+                    </statement>
+                </jdbcGeneralActivityInput>
+            </pd:inputBindings>
+        </pd:activity>
+        <pd:activity name="ReplaceEqualSimbol">
+            <pd:type>com.tibco.plugin.java.JavaActivity</pd:type>
+            <pd:resourceType>ae.javapalette.javaActivity</pd:resourceType>
+            <pd:x>493</pd:x>
+            <pd:y>96</pd:y>
+            <config>
+                <fileName>RefreshConversionLog_ManualReplaceEqualSimbol</fileName>
+                <packageName>Level3Server.RefreshConversionLog_Manual</packageName>
+                <fullsource>package Level3Server.RefreshConversionLog_Manual;
+import java.util.*;
+import java.io.*;
+public class RefreshConversionLog_ManualReplaceEqualSimbol{
+/****** START SET/GET METHOD, DO NOT MODIFY *****/
+	protected String in = "";
+	protected String out = "";
+	public String getin() {
+		return in;
+	}
+	public void setin(String val) {
+		in = val;
+	}
+	public String getout() {
+		return out;
+	}
+	public void setout(String val) {
+		out = val;
+	}
+/****** END SET/GET METHOD, DO NOT MODIFY *****/
+	public RefreshConversionLog_ManualReplaceEqualSimbol() {
+	}
+	public void invoke() throws Exception {
+/* Available Variables: DO NOT MODIFY
+	In  : String in
+	Out : String out
+* Available Variables: DO NOT MODIFY *****/
+
+out=in.replaceAll("=",",");}
+}
+</fullsource>
+                <inputData>
+                    <row>
+                        <fieldName>in</fieldName>
+                        <fieldType>string</fieldType>
+                        <fieldRequired>optional</fieldRequired>
+                    </row>
+                </inputData>
+                <outputData>
+                    <row>
+                        <fieldName>out</fieldName>
+                        <fieldType>string</fieldType>
+                        <fieldRequired>optional</fieldRequired>
+                    </row>
+                </outputData>
+                <byteCode>
+                    <class>
+                        <name>RefreshConversionLog_ManualReplaceEqualSimbol</name>
+                        <byteCode>yv66vgAAADQAKgkACAAcCQAIAB0KAAkAHggAHwgAIAgAIQoAIgAjBwAkBwAlAQACaW4BABJMamF2YS9sYW5nL1N0cmluZzsBAANvdXQBAAVnZXRpbgEAFCgpTGphdmEvbGFuZy9TdHJpbmc7AQAEQ29kZQEAD0xpbmVOdW1iZXJUYWJsZQEABXNldGluAQAVKExqYXZhL2xhbmcvU3RyaW5nOylWAQAGZ2V0b3V0AQAGc2V0b3V0AQAGPGluaXQ+AQADKClWAQAGaW52b2tlAQAKRXhjZXB0aW9ucwcAJgEAClNvdXJjZUZpbGUBADJSZWZyZXNoQ29udmVyc2lvbkxvZ19NYW51YWxSZXBsYWNlRXF1YWxTaW1ib2wuamF2YQwACgALDAAMAAsMABUAFgEAAAEAAT0BAAEsBwAnDAAoACkBAFZMZXZlbDNTZXJ2ZXIvUmVmcmVzaENvbnZlcnNpb25Mb2dfTWFudWFsL1JlZnJlc2hDb252ZXJzaW9uTG9nX01hbnVhbFJlcGxhY2VFcXVhbFNpbWJvbAEAEGphdmEvbGFuZy9PYmplY3QBABNqYXZhL2xhbmcvRXhjZXB0aW9uAQAQamF2YS9sYW5nL1N0cmluZwEACnJlcGxhY2VBbGwBADgoTGphdmEvbGFuZy9TdHJpbmc7TGphdmEvbGFuZy9TdHJpbmc7KUxqYXZhL2xhbmcvU3RyaW5nOwAhAAgACQAAAAIABAAKAAsAAAAEAAwACwAAAAYAAQANAA4AAQAPAAAAHQABAAEAAAAFKrQAAbAAAAABABAAAAAGAAEAAAAJAAEAEQASAAEADwAAACIAAgACAAAABiortQABsQAAAAEAEAAAAAoAAgAAAAwABQANAAEAEwAOAAEADwAAAB0AAQABAAAABSq0AAKwAAAAAQAQAAAABgABAAAADwABABQAEgABAA8AAAAiAAIAAgAAAAYqK7UAArEAAAABABAAAAAKAAIAAAASAAUAEwABABUAFgABAA8AAAA1AAIAAQAAABEqtwADKhIEtQABKhIEtQACsQAAAAEAEAAAABIABAAAABUABAAGAAoABwAQABYAAQAXABYAAgAPAAAAKAAEAAEAAAAQKiq0AAESBRIGtgAHtQACsQAAAAEAEAAAAAYAAQAAAB0AGAAAAAQAAQAZAAEAGgAAAAIAGw==</byteCode>
+                    </class>
+                </byteCode>
+            </config>
+            <pd:inputBindings>
+                <javaCodeActivityInput>
+                    <in>
+                        <xsl:value-of select="$e/allCampCounters"/>
+                    </in>
+                </javaCodeActivityInput>
+            </pd:inputBindings>
+        </pd:activity>
+    </pd:group>
+    <pd:transition>
+        <pd:from>Rename File</pd:from>
+        <pd:to>Create File</pd:to>
+        <pd:lineType>Default</pd:lineType>
+        <pd:lineColor>-16777216</pd:lineColor>
+        <pd:conditionType>always</pd:conditionType>
+    </pd:transition>
+    <pd:transition>
+        <pd:from>Create File</pd:from>
+        <pd:to>GeneratePyhtonReport</pd:to>
+        <pd:lineType>Default</pd:lineType>
+        <pd:lineColor>-16777216</pd:lineColor>
+        <pd:conditionType>always</pd:conditionType>
+    </pd:transition>
+    <pd:transition>
+        <pd:from>Redis</pd:from>
+        <pd:to>Write File</pd:to>
+        <pd:lineType>Default</pd:lineType>
+        <pd:lineColor>-16777216</pd:lineColor>
+        <pd:conditionType>always</pd:conditionType>
+    </pd:transition>
+    <pd:transition>
+        <pd:from>Write File</pd:from>
+        <pd:to>Rename File</pd:to>
+        <pd:lineType>Default</pd:lineType>
+        <pd:lineColor>-16777216</pd:lineColor>
+        <pd:conditionType>always</pd:conditionType>
+    </pd:transition>
+    <pd:transition>
+        <pd:from>GeneratePyhtonReport</pd:from>
+        <pd:to>Group</pd:to>
+        <pd:lineType>Default</pd:lineType>
+        <pd:lineColor>-16777216</pd:lineColor>
+        <pd:conditionType>always</pd:conditionType>
+    </pd:transition>
+    <pd:transition>
+        <pd:from>Group</pd:from>
+        <pd:to>End</pd:to>
+        <pd:lineType>Default</pd:lineType>
+        <pd:lineColor>-16777216</pd:lineColor>
+        <pd:conditionType>always</pd:conditionType>
+    </pd:transition>
+    <pd:transition>
+        <pd:from>Start</pd:from>
+        <pd:to>Redis</pd:to>
+        <pd:lineType>Default</pd:lineType>
+        <pd:lineColor>-16777216</pd:lineColor>
+        <pd:conditionType>always</pd:conditionType>
+    </pd:transition>
+</pd:ProcessDefinition>

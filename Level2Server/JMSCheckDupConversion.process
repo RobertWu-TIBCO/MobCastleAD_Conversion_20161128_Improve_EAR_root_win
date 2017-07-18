@@ -1,0 +1,1141 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<pd:ProcessDefinition xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:pd="http://xmlns.tibco.com/bw/process/2003" xmlns:ns="http://www.tibco.com/namespaces/tnt/plugins/jms" xmlns:ns12="http://www.tibco.com/namespaces/tnt/plugins/file" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:ns2="http://www.tibco.com/pe/WriteToLogActivitySchema" xmlns:tib="http://www.tibco.com/bw/xslt/custom-functions" xmlns:ns1="http://www.tibco.com/pe/DeployedVarsType">
+    <pd:name>Level2Server/JMSCheckDupConversion.process</pd:name>
+    <pd:startName>ConversionDupQueue</pd:startName>
+    <pd:startX>0</pd:startX>
+    <pd:startY>0</pd:startY>
+    <pd:returnBindings/>
+    <pd:starter name="ConversionDupQueue">
+        <pd:type>com.tibco.plugin.jms.JMSQueueEventSource</pd:type>
+        <pd:resourceType>ae.activities.JMSQueueEventSource</pd:resourceType>
+        <pd:x>67</pd:x>
+        <pd:y>38</pd:y>
+        <config>
+            <PermittedMessageType>XML Text</PermittedMessageType>
+            <SessionAttributes>
+                <transacted>false</transacted>
+                <acknowledgeMode>2</acknowledgeMode>
+                <maxSessions>1</maxSessions>
+                <destination>ConversionDupQueue</destination>
+            </SessionAttributes>
+            <ConfigurableHeaders>
+                <JMSDeliveryMode>PERSISTENT</JMSDeliveryMode>
+                <JMSExpiration>0</JMSExpiration>
+                <JMSPriority>4</JMSPriority>
+            </ConfigurableHeaders>
+            <ConnectionReference>/Level2Server/JMS Local.sharedjmscon</ConnectionReference>
+            <OutDataxsdString>
+                <xsd:element name="root">
+                    <xsd:complexType>
+                        <xsd:sequence>
+                            <xsd:element name="rm" type="xsd:string" minOccurs="0"/>
+                            <xsd:element name="pl" type="xsd:string" minOccurs="0"/>
+                            <xsd:element name="clickid" type="xsd:string" minOccurs="0"/>
+                            <xsd:element name="mapStr" type="xsd:string" minOccurs="0"/>
+                            <xsd:element name="camp_id" type="xsd:string" minOccurs="0"/>
+                        </xsd:sequence>
+                    </xsd:complexType>
+                </xsd:element>
+            </OutDataxsdString>
+        </config>
+        <pd:inputBindings/>
+    </pd:starter>
+    <pd:endName>End</pd:endName>
+    <pd:endX>829</pd:endX>
+    <pd:endY>271</pd:endY>
+    <pd:errorSchemas/>
+    <pd:processVariables/>
+    <pd:targetNamespace>http://xmlns.example.com/1474294145891</pd:targetNamespace>
+    <pd:activity name="CheckClickLogUsingClickID">
+        <pd:type>com.tibco.pe.core.CallProcessActivity</pd:type>
+        <pd:resourceType>ae.process.subprocess</pd:resourceType>
+        <pd:x>66</pd:x>
+        <pd:y>165</pd:y>
+        <config>
+            <processName>/Level2Server/CheckClickLog.process</processName>
+        </config>
+        <pd:inputBindings>
+            <root>
+                <clickId>
+                    <xsl:value-of select="$ConversionDupQueue/ns:ActivityOutput/Body/root/clickid"/>
+                </clickId>
+                <MapStr>
+                    <xsl:value-of select="$ConversionDupQueue/ns:ActivityOutput/Body/root/mapStr"/>
+                </MapStr>
+            </root>
+        </pd:inputBindings>
+    </pd:activity>
+    <pd:activity name="GetDupStatus">
+        <pd:type>com.tibco.pe.core.GetSharedVariableActivity</pd:type>
+        <pd:resourceType>ae.activities.getSharedVariable</pd:resourceType>
+        <pd:x>62</pd:x>
+        <pd:y>307</pd:y>
+        <config>
+            <variableConfig>/Level2Server/ConversionStatus.jobsharedvariable</variableConfig>
+        </config>
+        <pd:inputBindings/>
+    </pd:activity>
+    <pd:activity name="rm">
+        <pd:type>com.tibco.plugin.java.JavaActivity</pd:type>
+        <pd:resourceType>ae.javapalette.javaActivity</pd:resourceType>
+        <pd:x>294</pd:x>
+        <pd:y>309</pd:y>
+        <config>
+            <fileName>JMSCheckDupConversionrm</fileName>
+            <packageName>Level2Server.JMSCheckDupConversion</packageName>
+            <fullsource>package Level2Server.JMSCheckDupConversion;
+import java.util.*;
+import java.io.*;
+public class JMSCheckDupConversionrm{
+/****** START SET/GET METHOD, DO NOT MODIFY *****/
+	protected int randomNumber = 0;
+	public int getrandomNumber() {
+		return randomNumber;
+	}
+	public void setrandomNumber(int val) {
+		randomNumber = val;
+	}
+/****** END SET/GET METHOD, DO NOT MODIFY *****/
+	public JMSCheckDupConversionrm() {
+	}
+	public void invoke() throws Exception {
+/* Available Variables: DO NOT MODIFY
+	Out : int randomNumber
+* Available Variables: DO NOT MODIFY *****/
+
+Random rand =new Random();
+
+randomNumber=rand.nextInt(100);}
+}
+</fullsource>
+            <outputData>
+                <row>
+                    <fieldName>randomNumber</fieldName>
+                    <fieldType>int</fieldType>
+                    <fieldRequired>optional</fieldRequired>
+                </row>
+            </outputData>
+            <byteCode>
+                <class>
+                    <name>JMSCheckDupConversionrm</name>
+                    <byteCode>yv66vgAAADQAIAkABgAXCgAHABgHABkKAAMAGAoAAwAaBwAbBwAcAQAMcmFuZG9tTnVtYmVyAQABSQEAD2dldHJhbmRvbU51bWJlcgEAAygpSQEABENvZGUBAA9MaW5lTnVtYmVyVGFibGUBAA9zZXRyYW5kb21OdW1iZXIBAAQoSSlWAQAGPGluaXQ+AQADKClWAQAGaW52b2tlAQAKRXhjZXB0aW9ucwcAHQEAClNvdXJjZUZpbGUBABxKTVNDaGVja0R1cENvbnZlcnNpb25ybS5qYXZhDAAIAAkMABAAEQEAEGphdmEvdXRpbC9SYW5kb20MAB4AHwEAOkxldmVsMlNlcnZlci9KTVNDaGVja0R1cENvbnZlcnNpb24vSk1TQ2hlY2tEdXBDb252ZXJzaW9ucm0BABBqYXZhL2xhbmcvT2JqZWN0AQATamF2YS9sYW5nL0V4Y2VwdGlvbgEAB25leHRJbnQBAAQoSSlJACEABgAHAAAAAQAEAAgACQAAAAQAAQAKAAsAAQAMAAAAHQABAAEAAAAFKrQAAawAAAABAA0AAAAGAAEAAAAIAAEADgAPAAEADAAAACIAAgACAAAABiobtQABsQAAAAEADQAAAAoAAgAAAAsABQAMAAEAEAARAAEADAAAACoAAgABAAAACiq3AAIqA7UAAbEAAAABAA0AAAAOAAMAAAAOAAQABgAJAA8AAQASABEAAgAMAAAALwADAAIAAAATuwADWbcABEwqKxBktgAFtQABsQAAAAEADQAAAAoAAgAAABUACAAXABMAAAAEAAEAFAABABUAAAACABY=</byteCode>
+                </class>
+            </byteCode>
+        </config>
+        <pd:inputBindings/>
+    </pd:activity>
+    <pd:activity name="ReplaceMacros">
+        <pd:type>com.tibco.plugin.java.JavaActivity</pd:type>
+        <pd:resourceType>ae.javapalette.javaActivity</pd:resourceType>
+        <pd:x>201</pd:x>
+        <pd:y>37</pd:y>
+        <config>
+            <fileName>JMSCheckDupConversionReplaceMacros</fileName>
+            <packageName>Level2Server.JMSCheckDupConversion</packageName>
+            <fullsource>package Level2Server.JMSCheckDupConversion;
+import java.util.*;
+import java.io.*;
+public class JMSCheckDupConversionReplaceMacros{
+/****** START SET/GET METHOD, DO NOT MODIFY *****/
+	protected String pl = "";
+	protected String mapStr = "";
+	protected String pythonOutMapStr = "";
+	protected String RelacedUrl = "";
+	protected String ParamMapStr = "";
+	public String getpl() {
+		return pl;
+	}
+	public void setpl(String val) {
+		pl = val;
+	}
+	public String getmapStr() {
+		return mapStr;
+	}
+	public void setmapStr(String val) {
+		mapStr = val;
+	}
+	public String getpythonOutMapStr() {
+		return pythonOutMapStr;
+	}
+	public void setpythonOutMapStr(String val) {
+		pythonOutMapStr = val;
+	}
+	public String getRelacedUrl() {
+		return RelacedUrl;
+	}
+	public void setRelacedUrl(String val) {
+		RelacedUrl = val;
+	}
+	public String getParamMapStr() {
+		return ParamMapStr;
+	}
+	public void setParamMapStr(String val) {
+		ParamMapStr = val;
+	}
+/****** END SET/GET METHOD, DO NOT MODIFY *****/
+	public JMSCheckDupConversionReplaceMacros() {
+	}
+	public void invoke() throws Exception {
+/* Available Variables: DO NOT MODIFY
+	In  : String pl
+	In  : String mapStr
+	In  : String pythonOutMapStr
+	Out : String RelacedUrl
+	Out : String ParamMapStr
+* Available Variables: DO NOT MODIFY *****/
+		Map&lt;String, String&gt; ParamMap = mapStringToMap(mapStr);
+		Map&lt;String, String&gt; ParamMapPython=new HashMap&lt;String,String&gt;();
+	try{
+//System.out.println(" before  try parse python map tostring :  "+pythonOutMapStr+"");
+pythonOutMapStr=pythonOutMapStr.replaceAll("\n|\r","");
+//System.out.println(" before  try parse python map tostring :  "+pythonOutMapStr+"");
+		 ParamMapPython = mapStringToMap(pythonOutMapStr); 
+	}
+	catch(Exception e){
+	}
+	//	ParamMap.putAll(ParamMapPython);		
+		ParamMapPython.putAll(ParamMap);	
+		ParamMap =	ParamMapPython;
+//		System.out.println("ParamMap.toString() : \t "+ParamMap.toString()+"\n  \t Python MapStr : \t "+ParamMapPython.toString());
+		RelacedUrl = pl;
+
+		String[] AllParams_array;
+		AllParams_array = pl.split("\\$\\{");
+//		System.out.println("Arrays.toString(AllParams_array) : \t"
+//				+ Arrays.toString(AllParams_array) + "\n  pl : \t" + pl);
+
+		List&lt;String&gt; list = new ArrayList&lt;String&gt;();
+
+		for (String param_i : AllParams_array) {
+			try {
+				param_i = param_i.substring(0, param_i.indexOf("}"));
+				list.add(param_i);
+			} catch (Exception e) {
+				continue;
+			}
+		}
+		System.out.println("list.toString() : \t " + list.toString());
+		// @SuppressWarnings("unchecked")
+
+		for (String str : list) {
+			try {
+				String w = ""+ParamMap.get(str);
+			//	System.out.println(" RelacedUrl :  \t" + RelacedUrl
+		//				+ "\n\n The String to be replaced : \t " + "${" + str
+	//					+ "}"
+		//				+ "\n\n The values to be used for replacing : \t " + w);
+				if (w == null || w.equals("null") || w.contains("${") || w.equals("$" + str))
+					RelacedUrl = RelacedUrl.replace("${" + str + "}", "");
+				else
+					RelacedUrl = RelacedUrl.replace("${" + str + "}", w);
+			} catch (Exception e) {
+				RelacedUrl = RelacedUrl.replace("${" + str + "}", "");
+				continue;
+			}
+		}
+		Map&lt;String, String&gt; ParamMapObj_Replaced = ParamMap;
+		ParamMapStr=ParamMap.toString();
+		System.out.println("The last output RelacedUrl : \t " + RelacedUrl);
+		System.out.println("ParamMapObj_Replaced : \t " + ParamMapObj_Replaced);
+           }
+
+/*
+public static Map&lt;String, String&gt; mapStringToMap(String str) {
+		str = str.substring(1, str.length() - 1);
+		String[] strs = str.split(", ");
+		Map&lt;String, String&gt; map = new HashMap&lt;String, String&gt;();
+		for (String string : strs) {
+			String key = string.split("=")[0];
+			String value = string.split("=")[1];
+			map.put(key, value);
+		}
+		return map;
+	}
+*/
+
+	public static Map&lt;String, String&gt; mapStringToMap(String str) {
+		str = str.substring(1, str.length() - 1);
+		//System.out.println("str : "+str);
+		String[] strs = str.split(", ");
+		Map&lt;String, String&gt; map = new HashMap&lt;String, String&gt;();
+		for (String string : strs) {
+			String key = string.split("=")[0];
+			
+	        try {
+				String value = string.split("=")[1];
+				//System.out.println("value sys  : "+value);
+				map.put(key, value);
+				
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				//e.printStackTrace();
+				continue;
+			}
+		}
+		return map;
+	}
+
+}
+
+</fullsource>
+            <inputData>
+                <row>
+                    <fieldName>pl</fieldName>
+                    <fieldType>string</fieldType>
+                    <fieldRequired>optional</fieldRequired>
+                </row>
+                <row>
+                    <fieldName>mapStr</fieldName>
+                    <fieldType>string</fieldType>
+                    <fieldRequired>optional</fieldRequired>
+                </row>
+                <row>
+                    <fieldName>pythonOutMapStr</fieldName>
+                    <fieldType>string</fieldType>
+                    <fieldRequired>optional</fieldRequired>
+                </row>
+            </inputData>
+            <outputData>
+                <row>
+                    <fieldName>RelacedUrl</fieldName>
+                    <fieldType>string</fieldType>
+                    <fieldRequired>optional</fieldRequired>
+                </row>
+                <row>
+                    <fieldName>ParamMapStr</fieldName>
+                    <fieldType>string</fieldType>
+                    <fieldRequired>optional</fieldRequired>
+                </row>
+            </outputData>
+            <byteCode>
+                <class>
+                    <name>JMSCheckDupConversionReplaceMacros</name>
+                    <byteCode>yv66vgAAADQAtgkAMQBZCQAxAFoJADEAWwkAMQBcCQAxAF0KADIAXggAXwoAMQBgBwBhCgAJAF4IAGIKACIAYwcAZAsAZQBmCABnCgAiAGgHAGkKABEAXggAagoAIgBrCgAiAGwLAG0AbgkAbwBwBwBxCgAYAF4IAHIKABgAcwoAMgB0CgAYAHQKAHUAdgsAbQB3CwB4AHkLAHgAegcAewsAZQB8CAB9CgAiAH4IAH8KACIAgAgAgQoAIgCCCACDCACECgAYAIUKACIAhggAhwgAiAsAZQCJBwCKBwCLAQACcGwBABJMamF2YS9sYW5nL1N0cmluZzsBAAZtYXBTdHIBAA9weXRob25PdXRNYXBTdHIBAApSZWxhY2VkVXJsAQALUGFyYW1NYXBTdHIBAAVnZXRwbAEAFCgpTGphdmEvbGFuZy9TdHJpbmc7AQAEQ29kZQEAD0xpbmVOdW1iZXJUYWJsZQEABXNldHBsAQAVKExqYXZhL2xhbmcvU3RyaW5nOylWAQAJZ2V0bWFwU3RyAQAJc2V0bWFwU3RyAQASZ2V0cHl0aG9uT3V0TWFwU3RyAQASc2V0cHl0aG9uT3V0TWFwU3RyAQANZ2V0UmVsYWNlZFVybAEADXNldFJlbGFjZWRVcmwBAA5nZXRQYXJhbU1hcFN0cgEADnNldFBhcmFtTWFwU3RyAQAGPGluaXQ+AQADKClWAQAGaW52b2tlAQANU3RhY2tNYXBUYWJsZQcAigcAjAcAZAcAjQcAjgcAewcAjwEACkV4Y2VwdGlvbnMBAA5tYXBTdHJpbmdUb01hcAEAIyhMamF2YS9sYW5nL1N0cmluZzspTGphdmEvdXRpbC9NYXA7AQAJU2lnbmF0dXJlAQBJKExqYXZhL2xhbmcvU3RyaW5nOylMamF2YS91dGlsL01hcDxMamF2YS9sYW5nL1N0cmluZztMamF2YS9sYW5nL1N0cmluZzs+OwEAClNvdXJjZUZpbGUBACdKTVNDaGVja0R1cENvbnZlcnNpb25SZXBsYWNlTWFjcm9zLmphdmEMADMANAwANQA0DAA2ADQMADcANAwAOAA0DABHAEgBAAAMAFMAVAEAEWphdmEvdXRpbC9IYXNoTWFwAQADCnwNDACQAJEBABNqYXZhL2xhbmcvRXhjZXB0aW9uBwCMDACSAJMBAARcJFx7DACUAJUBABNqYXZhL3V0aWwvQXJyYXlMaXN0AQABfQwAlgCXDACYAJkHAI4MAJoAmwcAnAwAnQCeAQAXamF2YS9sYW5nL1N0cmluZ0J1aWxkZXIBABRsaXN0LnRvU3RyaW5nKCkgOiAJIAwAnwCgDAChADoHAKIMAKMAPgwApAClBwCPDACmAKcMAKgAqQEAEGphdmEvbGFuZy9TdHJpbmcMAKoAqwEABG51bGwMAKwAmwEAAiR7DACtAK4BAAEkDACvALABAB9UaGUgbGFzdCBvdXRwdXQgUmVsYWNlZFVybCA6IAkgAQAZUGFyYW1NYXBPYmpfUmVwbGFjZWQgOiAJIAwAnwCxDACyALMBAAIsIAEAAT0MALQAtQEARUxldmVsMlNlcnZlci9KTVNDaGVja0R1cENvbnZlcnNpb24vSk1TQ2hlY2tEdXBDb252ZXJzaW9uUmVwbGFjZU1hY3JvcwEAEGphdmEvbGFuZy9PYmplY3QBAA1qYXZhL3V0aWwvTWFwAQATW0xqYXZhL2xhbmcvU3RyaW5nOwEADmphdmEvdXRpbC9MaXN0AQASamF2YS91dGlsL0l0ZXJhdG9yAQAKcmVwbGFjZUFsbAEAOChMamF2YS9sYW5nL1N0cmluZztMamF2YS9sYW5nL1N0cmluZzspTGphdmEvbGFuZy9TdHJpbmc7AQAGcHV0QWxsAQASKExqYXZhL3V0aWwvTWFwOylWAQAFc3BsaXQBACcoTGphdmEvbGFuZy9TdHJpbmc7KVtMamF2YS9sYW5nL1N0cmluZzsBAAdpbmRleE9mAQAVKExqYXZhL2xhbmcvU3RyaW5nOylJAQAJc3Vic3RyaW5nAQAWKElJKUxqYXZhL2xhbmcvU3RyaW5nOwEAA2FkZAEAFShMamF2YS9sYW5nL09iamVjdDspWgEAEGphdmEvbGFuZy9TeXN0ZW0BAANvdXQBABVMamF2YS9pby9QcmludFN0cmVhbTsBAAZhcHBlbmQBAC0oTGphdmEvbGFuZy9TdHJpbmc7KUxqYXZhL2xhbmcvU3RyaW5nQnVpbGRlcjsBAAh0b1N0cmluZwEAE2phdmEvaW8vUHJpbnRTdHJlYW0BAAdwcmludGxuAQAIaXRlcmF0b3IBABYoKUxqYXZhL3V0aWwvSXRlcmF0b3I7AQAHaGFzTmV4dAEA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</byteCode>
+                </class>
+            </byteCode>
+        </config>
+        <pd:inputBindings>
+            <javaCodeActivityInput>
+                <xsl:if test="$ConversionDupQueue/ns:ActivityOutput/Body/root/pl">
+                    <pl>
+                        <xsl:value-of select="$ConversionDupQueue/ns:ActivityOutput/Body/root/pl"/>
+                    </pl>
+                </xsl:if>
+                <xsl:if test="$ConversionDupQueue/ns:ActivityOutput/Body/root/mapStr">
+                    <mapStr>
+                        <xsl:value-of select="$ConversionDupQueue/ns:ActivityOutput/Body/root/mapStr"/>
+                    </mapStr>
+                </xsl:if>
+                <pythonOutMapStr>
+                    <xsl:value-of select="$Transmitt/root/pythonMapStr"/>
+                </pythonOutMapStr>
+            </javaCodeActivityInput>
+        </pd:inputBindings>
+    </pd:activity>
+    <pd:activity name="Map Data">
+        <pd:type>com.tibco.plugin.mapper.MapperActivity</pd:type>
+        <pd:resourceType>ae.activities.MapperActivity</pd:resourceType>
+        <pd:x>381</pd:x>
+        <pd:y>37</pd:y>
+        <config>
+            <element>
+                <xsd:element name="root">
+                    <xsd:complexType>
+                        <xsd:sequence>
+                            <xsd:element name="Host" type="xsd:string" minOccurs="0"/>
+                            <xsd:element name="RequestUrl" type="xsd:string" minOccurs="0"/>
+                            <xsd:element name="RequestUrl_Real" type="xsd:string" minOccurs="0"/>
+                            <xsd:element name="QueryString" type="xsd:string" minOccurs="0"/>
+                        </xsd:sequence>
+                    </xsd:complexType>
+                </xsd:element>
+            </element>
+        </config>
+        <pd:inputBindings>
+            <root>
+                <Host>
+                    <xsl:value-of select="substring-before(substring-after($ReplaceMacros/javaCodeActivityOutput/RelacedUrl,&quot;://&quot;), &quot;/&quot;)"/>
+                </Host>
+                <RequestUrl>
+                    <xsl:value-of select="substring-after(substring-after($ReplaceMacros/javaCodeActivityOutput/RelacedUrl,&quot;://&quot;), &quot;/&quot;)"/>
+                </RequestUrl>
+                <RequestUrl_Real>
+                    <xsl:value-of select="substring-before(substring-after(substring-after($ReplaceMacros/javaCodeActivityOutput/RelacedUrl,&quot;://&quot;), &quot;/&quot;),&quot;?&quot;)"/>
+                </RequestUrl_Real>
+                <QueryString>
+                    <xsl:value-of select="substring-after(substring-after(substring-after($ReplaceMacros/javaCodeActivityOutput/RelacedUrl,&quot;://&quot;), &quot;/&quot;),&quot;?&quot;)"/>
+                </QueryString>
+            </root>
+        </pd:inputBindings>
+    </pd:activity>
+    <pd:activity name="Confirm">
+        <pd:type>com.tibco.pe.core.ConfirmActivity</pd:type>
+        <pd:resourceType>activity.confirm</pd:resourceType>
+        <pd:x>377</pd:x>
+        <pd:y>184</pd:y>
+        <config>
+            <ConfirmEvent>ConversionDupQueue</ConfirmEvent>
+        </config>
+        <pd:inputBindings/>
+    </pd:activity>
+    <pd:activity name="ConfirmRM">
+        <pd:type>com.tibco.pe.core.ConfirmActivity</pd:type>
+        <pd:resourceType>activity.confirm</pd:resourceType>
+        <pd:x>426</pd:x>
+        <pd:y>271</pd:y>
+        <config>
+            <ConfirmEvent>ConversionDupQueue</ConfirmEvent>
+        </config>
+        <pd:inputBindings/>
+    </pd:activity>
+    <pd:activity name="ConfirmDuplicate">
+        <pd:type>com.tibco.pe.core.ConfirmActivity</pd:type>
+        <pd:resourceType>activity.confirm</pd:resourceType>
+        <pd:x>62</pd:x>
+        <pd:y>499</pd:y>
+        <config>
+            <ConfirmEvent>ConversionDupQueue</ConfirmEvent>
+        </config>
+        <pd:inputBindings/>
+    </pd:activity>
+    <pd:activity name="LogRedisSuccess">
+        <pd:type>com.tibco.pe.core.WriteToLogActivity</pd:type>
+        <pd:resourceType>ae.activities.log</pd:resourceType>
+        <pd:x>617</pd:x>
+        <pd:y>270</pd:y>
+        <config>
+            <role>User</role>
+        </config>
+        <pd:inputBindings>
+            <ns2:ActivityInput>
+                <message>
+                    <xsl:value-of select="&quot;### Redis Write Completes ###&quot;"/>
+                </message>
+            </ns2:ActivityInput>
+        </pd:inputBindings>
+    </pd:activity>
+    <pd:activity name="AppendClickToConversion">
+        <pd:type>com.tibco.plugin.file.FileWriteActivity</pd:type>
+        <pd:resourceType>ae.activities.FileWriteActivity</pd:resourceType>
+        <pd:x>179</pd:x>
+        <pd:y>310</pd:y>
+        <config>
+            <encoding>text</encoding>
+            <compressFile>None</compressFile>
+            <append>true</append>
+            <createMissingDirectories>true</createMissingDirectories>
+        </config>
+        <pd:inputBindings>
+            <ns12:WriteActivityInputTextClass>
+                <fileName>
+                    <xsl:value-of select="concat(&quot;E:\SoftWares\Project\log\clicktoconversion\&quot;,tib:substring-before-last($CheckClickLogUsingClickID/root/out,&quot;T&quot;),&quot;\clicktoconversion.log_&quot;,$CheckClickLogUsingClickID/root/out)"/>
+                </fileName>
+                <textContent>
+                    <xsl:value-of select="concat(&quot;@_@{clickid=&quot;,$ConversionDupQueue/ns:ActivityOutput/Body/root/clickid,&quot;}@_@@_@conversiontime=&quot;,$CheckClickLogUsingClickID/root/conversionTime,&quot;&#xA;&quot;)"/>
+                </textContent>
+            </ns12:WriteActivityInputTextClass>
+        </pd:inputBindings>
+    </pd:activity>
+    <pd:activity name="Catch">
+        <pd:type>com.tibco.pe.core.CatchActivity</pd:type>
+        <pd:resourceType>ae.activities.catch</pd:resourceType>
+        <pd:x>821</pd:x>
+        <pd:y>495</pd:y>
+        <pd:handler>true</pd:handler>
+        <config>
+            <catchAll>true</catchAll>
+        </config>
+        <pd:inputBindings/>
+    </pd:activity>
+    <pd:activity name="SendAlertEmail">
+        <pd:type>com.tibco.pe.core.CallProcessActivity</pd:type>
+        <pd:resourceType>ae.process.subprocess</pd:resourceType>
+        <pd:x>825</pd:x>
+        <pd:y>385</pd:y>
+        <config>
+            <processName>/Level2Server/SendAlertMail.process</processName>
+            <spawn>true</spawn>
+        </config>
+        <pd:inputBindings>
+            <root>
+                <subjectandcontent>
+                    <xsl:value-of select="$Catch/exceptiondata/*"/>
+                </subjectandcontent>
+                <subject>
+                    <xsl:value-of select="&quot;Win JMS Conversion Error&quot;"/>
+                </subject>
+            </root>
+        </pd:inputBindings>
+    </pd:activity>
+    <pd:activity name="ConversionToN">
+        <pd:type>com.tibco.pe.core.CallProcessActivity</pd:type>
+        <pd:resourceType>ae.process.subprocess</pd:resourceType>
+        <pd:x>819</pd:x>
+        <pd:y>161</pd:y>
+        <config>
+            <processName>/Level2Server/ConversionToN.process</processName>
+            <spawn>true</spawn>
+        </config>
+        <pd:inputBindings>
+            <root>
+                <xsl:if test="$Map-Data/root/Host">
+                    <host>
+                        <xsl:value-of select="$Map-Data/root/Host"/>
+                    </host>
+                </xsl:if>
+                <xsl:if test="$Map-Data/root/RequestUrl">
+                    <requestUrl>
+                        <xsl:value-of select="$Map-Data/root/RequestUrl"/>
+                    </requestUrl>
+                </xsl:if>
+                <timeout>
+                    <xsl:value-of select="60000"/>
+                </timeout>
+                <repeatTimes>
+                    <xsl:value-of select="2"/>
+                </repeatTimes>
+                <xsl:if test="$Map-Data/root/RequestUrl_Real">
+                    <requestUrl_real>
+                        <xsl:value-of select="$Map-Data/root/RequestUrl_Real"/>
+                    </requestUrl_real>
+                </xsl:if>
+                <xsl:if test="$Map-Data/root/QueryString">
+                    <queryString>
+                        <xsl:value-of select="$Map-Data/root/QueryString"/>
+                    </queryString>
+                </xsl:if>
+                <xsl:if test="$ReplaceMacros/javaCodeActivityOutput/RelacedUrl">
+                    <fullurl>
+                        <xsl:value-of select="$ReplaceMacros/javaCodeActivityOutput/RelacedUrl"/>
+                    </fullurl>
+                </xsl:if>
+            </root>
+        </pd:inputBindings>
+    </pd:activity>
+    <pd:group name="Group">
+        <pd:type>com.tibco.pe.core.LoopGroup</pd:type>
+        <pd:resourceType>ae.process.group</pd:resourceType>
+        <pd:x>519</pd:x>
+        <pd:y>1</pd:y>
+        <pd:width>188</pd:width>
+        <pd:height>158</pd:height>
+        <pd:collapsedWidth>57</pd:collapsedWidth>
+        <pd:collapsedHeight>70</pd:collapsedHeight>
+        <pd:groupVariables/>
+        <pd:joinToggle>inherit</pd:joinToggle>
+        <config>
+            <pd:groupType>errorLoop</pd:groupType>
+            <pd:serializable>false</pd:serializable>
+            <pd:indexSlot>indexlog</pd:indexSlot>
+            <pd:errorCondition>$Redis_WriteConversionLog-1/javaCodeActivityOutput/ok=1 or $indexlog&gt;2</pd:errorCondition>
+            <pd:suspendAfterErrorRetry>false</pd:suspendAfterErrorRetry>
+        </config>
+        <pd:inputBindings/>
+        <pd:expanded>true</pd:expanded>
+        <pd:transition>
+            <pd:from>start</pd:from>
+            <pd:to>Redis_WriteConversionLog-1</pd:to>
+            <pd:lineType>Default</pd:lineType>
+            <pd:lineColor>-16777216</pd:lineColor>
+            <pd:conditionType>always</pd:conditionType>
+        </pd:transition>
+        <pd:transition>
+            <pd:from>Redis_WriteConversionLog-1</pd:from>
+            <pd:to>end</pd:to>
+            <pd:lineType>Default</pd:lineType>
+            <pd:lineColor>-16777216</pd:lineColor>
+            <pd:conditionType>always</pd:conditionType>
+        </pd:transition>
+        <pd:activity name="Redis_WriteConversionLog-1">
+            <pd:type>com.tibco.plugin.java.JavaActivity</pd:type>
+            <pd:resourceType>ae.javapalette.javaActivity</pd:resourceType>
+            <pd:description>concat(current-dateTime(),";",$ConversionDupQueue/ns:ActivityOutput/Body/root/mapStr,";","rm&amp;lf;")
+
+$_globalVariables/ns1:GlobalVariables/Log/ConversionLog</pd:description>
+            <pd:x>608</pd:x>
+            <pd:y>86</pd:y>
+            <config>
+                <fileName>JMSCheckDupConversionRedis_WriteConversionLog1</fileName>
+                <packageName>Level2Server.JMSCheckDupConversion</packageName>
+                <fullsource>package Level2Server.JMSCheckDupConversion;
+import java.util.*;
+import java.io.*;
+import redis.clients.jedis.Jedis;     
+@SuppressWarnings("unchecked")
+public class JMSCheckDupConversionRedis_WriteConversionLog1{
+/****** START SET/GET METHOD, DO NOT MODIFY *****/
+	protected String textContent = "";
+	protected String key = "";
+	protected String field = "";
+	protected int ok = 0;
+	public String gettextContent() {
+		return textContent;
+	}
+	public void settextContent(String val) {
+		textContent = val;
+	}
+	public String getkey() {
+		return key;
+	}
+	public void setkey(String val) {
+		key = val;
+	}
+	public String getfield() {
+		return field;
+	}
+	public void setfield(String val) {
+		field = val;
+	}
+	public int getok() {
+		return ok;
+	}
+	public void setok(int val) {
+		ok = val;
+	}
+/****** END SET/GET METHOD, DO NOT MODIFY *****/
+	public JMSCheckDupConversionRedis_WriteConversionLog1() {
+	}
+	public void invoke() throws Exception {
+/* Available Variables: DO NOT MODIFY
+	In  : String textContent
+	In  : String key
+	In  : String field
+	Out : int ok
+* Available Variables: DO NOT MODIFY *****/
+	
+
+	  Jedis jedis =  new Jedis("127.0.0.1",6379,100000); 
+		jedis.auth("!VMD1kult");
+	jedis.lpush("conversionLogList", textContent); 
+	
+	jedis.hincrBy(key, field, 1);
+	ok=1;
+	}
+}
+</fullsource>
+                <inputData>
+                    <row>
+                        <fieldName>textContent</fieldName>
+                        <fieldType>string</fieldType>
+                        <fieldRequired>optional</fieldRequired>
+                    </row>
+                    <row>
+                        <fieldName>key</fieldName>
+                        <fieldType>string</fieldType>
+                        <fieldRequired>optional</fieldRequired>
+                    </row>
+                    <row>
+                        <fieldName>field</fieldName>
+                        <fieldType>string</fieldType>
+                        <fieldRequired>optional</fieldRequired>
+                    </row>
+                </inputData>
+                <outputData>
+                    <row>
+                        <fieldName>ok</fieldName>
+                        <fieldType>int</fieldType>
+                        <fieldRequired>optional</fieldRequired>
+                    </row>
+                </outputData>
+                <byteCode>
+                    <class>
+                        <name>JMSCheckDupConversionRedis_WriteConversionLog1</name>
+                        <byteCode>yv66vgAAADQARwkAEQAuCQARAC8JABEAMAkAEQAxCgASADIIADMHADQIADUDAAGGoAoABwA2CAA3CgAHADgIADkHADoKAAcAOwoABwA8BwA9BwA+AQALdGV4dENvbnRlbnQBABJMamF2YS9sYW5nL1N0cmluZzsBAANrZXkBAAVmaWVsZAEAAm9rAQABSQEADmdldHRleHRDb250ZW50AQAUKClMamF2YS9sYW5nL1N0cmluZzsBAARDb2RlAQAPTGluZU51bWJlclRhYmxlAQAOc2V0dGV4dENvbnRlbnQBABUoTGphdmEvbGFuZy9TdHJpbmc7KVYBAAZnZXRrZXkBAAZzZXRrZXkBAAhnZXRmaWVsZAEACHNldGZpZWxkAQAFZ2V0b2sBAAMoKUkBAAVzZXRvawEABChJKVYBAAY8aW5pdD4BAAMoKVYBAAZpbnZva2UBAApFeGNlcHRpb25zBwA/AQAKU291cmNlRmlsZQEAM0pNU0NoZWNrRHVwQ29udmVyc2lvblJlZGlzX1dyaXRlQ29udmVyc2lvbkxvZzEuamF2YQwAEwAUDAAVABQMABYAFAwAFwAYDAAnACgBAAABABlyZWRpcy9jbGllbnRzL2plZGlzL0plZGlzAQAJMTI3LjAuMC4xDAAnAEABAAkhVk1EMWt1bHQMAEEAQgEAEWNvbnZlcnNpb25Mb2dMaXN0AQAQamF2YS9sYW5nL1N0cmluZwwAQwBEDABFAEYBAFFMZXZlbDJTZXJ2ZXIvSk1TQ2hlY2tEdXBDb252ZXJzaW9uL0pNU0NoZWNrRHVwQ29udmVyc2lvblJlZGlzX1dyaXRlQ29udmVyc2lvbkxvZzEBABBqYXZhL2xhbmcvT2JqZWN0AQATamF2YS9sYW5nL0V4Y2VwdGlvbgEAFyhMamF2YS9sYW5nL1N0cmluZztJSSlWAQAEYXV0aAEAJihMamF2YS9sYW5nL1N0cmluZzspTGphdmEvbGFuZy9TdHJpbmc7AQAFbHB1c2gBADcoTGphdmEvbGFuZy9TdHJpbmc7W0xqYXZhL2xhbmcvU3RyaW5nOylMamF2YS9sYW5nL0xvbmc7AQAHaGluY3JCeQEANyhMamF2YS9sYW5nL1N0cmluZztMamF2YS9sYW5nL1N0cmluZztKKUxqYXZhL2xhbmcvTG9uZzsAIQARABIAAAAEAAQAEwAUAAAABAAVABQAAAAEABYAFAAAAAQAFwAYAAAACgABABkAGgABABsAAAAdAAEAAQAAAAUqtAABsAAAAAEAHAAAAAYAAQAAAA0AAQAdAB4AAQAbAAAAIgACAAIAAAAGKiu1AAGxAAAAAQAcAAAACgACAAAAEAAFABEAAQAfABoAAQAbAAAAHQABAAEAAAAFKrQAArAAAAABABwAAAAGAAEAAAATAAEAIAAeAAEAGwAAACIAAgACAAAABiortQACsQAAAAEAHAAAAAoAAgAAABYABQAXAAEAIQAaAAEAGwAAAB0AAQABAAAABSq0AAOwAAAAAQAcAAAABgABAAAAGQABACIAHgABABsAAAAiAAIAAgAAAAYqK7UAA7EAAAABABwAAAAKAAIAAAAcAAUAHQABACMAJAABABsAAAAdAAEAAQAAAAUqtAAErAAAAAEAHAAAAAYAAQAAAB8AAQAlACYAAQAbAAAAIgACAAIAAAAGKhu1AASxAAAAAQAcAAAACgACAAAAIgAFACMAAQAnACgAAQAbAAAASAACAAEAAAAcKrcABSoSBrUAASoSBrUAAioSBrUAAyoDtQAEsQAAAAEAHAAAABoABgAAACUABAAIAAoACQAQAAoAFgALABsAJgABACkAKAACABsAAABoAAYAAgAAADy7AAdZEggRGOsSCbcACkwrEgu2AAxXKxINBL0ADlkDKrQAAVO2AA9XKyq0AAIqtAADCrYAEFcqBLUABLEAAAABABwAAAAaAAYAAAAwAA8AMQAWADIAKAA0ADYANQA7ADYAKgAAAAQAAQArAAEALAAAAAIALQ==</byteCode>
+                    </class>
+                </byteCode>
+            </config>
+            <pd:inputBindings>
+                <javaCodeActivityInput>
+                    <xsl:choose xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+                        <xsl:when test="$ConversionDupQueue/ns:ActivityOutput/Body/root/pl=&quot;&quot;">
+                            <textContent>
+                                <xsl:value-of select="concat($CheckClickLogUsingClickID/root/conversionTime,&quot;@_@&quot;,$ConversionDupQueue/ns:ActivityOutput/Body/root/mapStr,&quot;@_@&quot;,&quot;Empty&quot;,&quot;&#xA;&quot;)"/>
+                            </textContent>
+                        </xsl:when>
+                        <xsl:otherwise>
+                            <textContent>
+                                <xsl:value-of select="concat($CheckClickLogUsingClickID/root/conversionTime,&quot;@_@&quot;,$ReplaceMacros/javaCodeActivityOutput/ParamMapStr,&quot;@_@&quot;,$ReplaceMacros/javaCodeActivityOutput/RelacedUrl,&quot;&#xA;&quot;)"/>
+                            </textContent>
+                        </xsl:otherwise>
+                    </xsl:choose>
+                    <key>
+                        <xsl:value-of select="&quot;conversionCounter&quot;"/>
+                    </key>
+                    <xsl:if test="$ConversionDupQueue/ns:ActivityOutput/Body/root/camp_id">
+                        <field>
+                            <xsl:value-of select="$ConversionDupQueue/ns:ActivityOutput/Body/root/camp_id"/>
+                        </field>
+                    </xsl:if>
+                </javaCodeActivityInput>
+            </pd:inputBindings>
+        </pd:activity>
+    </pd:group>
+    <pd:activity name="Transmitt">
+        <pd:type>com.tibco.pe.core.CallProcessActivity</pd:type>
+        <pd:resourceType>ae.process.subprocess</pd:resourceType>
+        <pd:x>201</pd:x>
+        <pd:y>187</pd:y>
+        <config>
+            <processName>/Level2Server/ClickToConversion_Grep.process</processName>
+        </config>
+        <pd:inputBindings>
+            <root>
+                <xsl:if test="$ConversionDupQueue/ns:ActivityOutput/Body/root/clickid">
+                    <clickid>
+                        <xsl:value-of select="$ConversionDupQueue/ns:ActivityOutput/Body/root/clickid"/>
+                    </clickid>
+                </xsl:if>
+                <xsl:if test="$CheckClickLogUsingClickID/root/out">
+                    <clicktime>
+                        <xsl:value-of select="$CheckClickLogUsingClickID/root/out"/>
+                    </clicktime>
+                </xsl:if>
+                <xsl:if test="$CheckClickLogUsingClickID/root/conversionTime">
+                    <conversiontime>
+                        <xsl:value-of select="$CheckClickLogUsingClickID/root/conversionTime"/>
+                    </conversiontime>
+                </xsl:if>
+                <clickfilename>
+                    <xsl:value-of select="concat(&#xA;&quot;click.log_&quot;,&#xA;$CheckClickLogUsingClickID/root/out&#xA;)"/>
+                </clickfilename>
+                <clickfoldername>
+                    <xsl:value-of select="concat(&#xA;&quot;E:\SoftWares\Project\log\click\&quot;,&#xA;substring-before($CheckClickLogUsingClickID/root/out, &quot;T&quot;),&#xA;&quot;\&quot;&#xA;)"/>
+                </clickfoldername>
+                <clicktoconversionFilename>
+                    <xsl:value-of select="concat(&#xA;&quot;clicktoconversion.log_&quot;,&#xA;$CheckClickLogUsingClickID/root/out&#xA;)"/>
+                </clicktoconversionFilename>
+                <clicktoconversionFoldername>
+                    <xsl:value-of select="concat(&#xA;&quot;E:\SoftWares\Project\log\clicktoconversion\&quot;,&#xA;substring-before($CheckClickLogUsingClickID/root/out, &quot;T&quot;),&#xA;&quot;\&quot;&#xA;)"/>
+                </clicktoconversionFoldername>
+            </root>
+        </pd:inputBindings>
+    </pd:activity>
+    <pd:group name="okrm_group">
+        <pd:type>com.tibco.pe.core.LoopGroup</pd:type>
+        <pd:resourceType>ae.process.group</pd:resourceType>
+        <pd:x>363</pd:x>
+        <pd:y>347</pd:y>
+        <pd:width>128</pd:width>
+        <pd:height>140</pd:height>
+        <pd:collapsedWidth>57</pd:collapsedWidth>
+        <pd:collapsedHeight>70</pd:collapsedHeight>
+        <pd:groupVariables/>
+        <pd:joinToggle>inherit</pd:joinToggle>
+        <config>
+            <pd:groupType>errorLoop</pd:groupType>
+            <pd:serializable>false</pd:serializable>
+            <pd:indexSlot>okrm_index</pd:indexSlot>
+            <pd:errorCondition>$Redis_rm/javaCodeActivityOutput/okrm=1 or $okrm_index &gt;2</pd:errorCondition>
+            <pd:suspendAfterErrorRetry>false</pd:suspendAfterErrorRetry>
+        </config>
+        <pd:inputBindings/>
+        <pd:expanded>true</pd:expanded>
+        <pd:transition>
+            <pd:from>start</pd:from>
+            <pd:to>Redis_rm</pd:to>
+            <pd:lineType>Default</pd:lineType>
+            <pd:lineColor>-16777216</pd:lineColor>
+            <pd:conditionType>always</pd:conditionType>
+        </pd:transition>
+        <pd:transition>
+            <pd:from>Redis_rm</pd:from>
+            <pd:to>end</pd:to>
+            <pd:lineType>Default</pd:lineType>
+            <pd:lineColor>-16777216</pd:lineColor>
+            <pd:conditionType>always</pd:conditionType>
+        </pd:transition>
+        <pd:activity name="Redis_rm">
+            <pd:type>com.tibco.plugin.java.JavaActivity</pd:type>
+            <pd:resourceType>ae.javapalette.javaActivity</pd:resourceType>
+            <pd:description>concat(current-dateTime(),";",$ConversionDupQueue/ns:ActivityOutput/Body/root/mapStr,";","rm&amp;lf;")
+
+$_globalVariables/ns1:GlobalVariables/Log/ConversionLog</pd:description>
+            <pd:x>416</pd:x>
+            <pd:y>411</pd:y>
+            <config>
+                <fileName>JMSCheckDupConversionRedis_rm</fileName>
+                <packageName>Level2Server.JMSCheckDupConversion</packageName>
+                <fullsource>package Level2Server.JMSCheckDupConversion;
+import java.util.*;
+import java.io.*;
+import redis.clients.jedis.Jedis;     
+@SuppressWarnings("unchecked")
+public class JMSCheckDupConversionRedis_rm{
+/****** START SET/GET METHOD, DO NOT MODIFY *****/
+	protected String MapStr = "";
+	protected String ts = "";
+	protected String key = "";
+	protected String field = "";
+	protected int okrm = 0;
+	public String getMapStr() {
+		return MapStr;
+	}
+	public void setMapStr(String val) {
+		MapStr = val;
+	}
+	public String getts() {
+		return ts;
+	}
+	public void setts(String val) {
+		ts = val;
+	}
+	public String getkey() {
+		return key;
+	}
+	public void setkey(String val) {
+		key = val;
+	}
+	public String getfield() {
+		return field;
+	}
+	public void setfield(String val) {
+		field = val;
+	}
+	public int getokrm() {
+		return okrm;
+	}
+	public void setokrm(int val) {
+		okrm = val;
+	}
+/****** END SET/GET METHOD, DO NOT MODIFY *****/
+	public JMSCheckDupConversionRedis_rm() {
+	}
+	public void invoke() throws Exception {
+/* Available Variables: DO NOT MODIFY
+	In  : String MapStr
+	In  : String ts
+	In  : String key
+	In  : String field
+	Out : int okrm
+* Available Variables: DO NOT MODIFY *****/
+	String value=ts+"@_@"+MapStr+"@_@rm\n";
+
+	  Jedis jedis =  new Jedis("127.0.0.1",6379,100000); 
+		jedis.auth("!VMD1kult");
+	jedis.lpush("conversionLogList", value); 
+	jedis.hincrBy(key, field, 1);
+	okrm=1;
+	}
+}
+</fullsource>
+                <inputData>
+                    <row>
+                        <fieldName>MapStr</fieldName>
+                        <fieldType>string</fieldType>
+                        <fieldRequired>optional</fieldRequired>
+                    </row>
+                    <row>
+                        <fieldName>ts</fieldName>
+                        <fieldType>string</fieldType>
+                        <fieldRequired>optional</fieldRequired>
+                    </row>
+                    <row>
+                        <fieldName>key</fieldName>
+                        <fieldType>string</fieldType>
+                        <fieldRequired>optional</fieldRequired>
+                    </row>
+                    <row>
+                        <fieldName>field</fieldName>
+                        <fieldType>string</fieldType>
+                        <fieldRequired>optional</fieldRequired>
+                    </row>
+                </inputData>
+                <outputData>
+                    <row>
+                        <fieldName>okrm</fieldName>
+                        <fieldType>int</fieldType>
+                        <fieldRequired>optional</fieldRequired>
+                    </row>
+                </outputData>
+                <byteCode>
+                    <class>
+                        <name>JMSCheckDupConversionRedis_rm</name>
+                        <byteCode>yv66vgAAADQAWgkAGAA4CQAYADkJABgAOgkAGAA7CQAYADwKABkAPQgAPgcAPwoACAA9CgAIAEAIAEEIAEIKAAgAQwcARAgARQMAAYagCgAOAEYIAEcKAA4ASAgASQcASgoADgBLCgAOAEwHAE0HAE4BAAZNYXBTdHIBABJMamF2YS9sYW5nL1N0cmluZzsBAAJ0cwEAA2tleQEABWZpZWxkAQAEb2tybQEAAUkBAAlnZXRNYXBTdHIBABQoKUxqYXZhL2xhbmcvU3RyaW5nOwEABENvZGUBAA9MaW5lTnVtYmVyVGFibGUBAAlzZXRNYXBTdHIBABUoTGphdmEvbGFuZy9TdHJpbmc7KVYBAAVnZXR0cwEABXNldHRzAQAGZ2V0a2V5AQAGc2V0a2V5AQAIZ2V0ZmllbGQBAAhzZXRmaWVsZAEAB2dldG9rcm0BAAMoKUkBAAdzZXRva3JtAQAEKEkpVgEABjxpbml0PgEAAygpVgEABmludm9rZQEACkV4Y2VwdGlvbnMHAE8BAApTb3VyY2VGaWxlAQAiSk1TQ2hlY2tEdXBDb252ZXJzaW9uUmVkaXNfcm0uamF2YQwAGgAbDAAcABsMAB0AGwwAHgAbDAAfACAMADEAMgEAAAEAF2phdmEvbGFuZy9TdHJpbmdCdWlsZGVyDABQAFEBAANAX0ABAAZAX0BybQoMAFIAIgEAGXJlZGlzL2NsaWVudHMvamVkaXMvSmVkaXMBAAkxMjcuMC4wLjEMADEAUwEACSFWTUQxa3VsdAwAVABVAQARY29udmVyc2lvbkxvZ0xpc3QBABBqYXZhL2xhbmcvU3RyaW5nDABWAFcMAFgAWQEAQExldmVsMlNlcnZlci9KTVNDaGVja0R1cENvbnZlcnNpb24vSk1TQ2hlY2tEdXBDb252ZXJzaW9uUmVkaXNfcm0BABBqYXZhL2xhbmcvT2JqZWN0AQATamF2YS9sYW5nL0V4Y2VwdGlvbgEABmFwcGVuZAEALShMamF2YS9sYW5nL1N0cmluZzspTGphdmEvbGFuZy9TdHJpbmdCdWlsZGVyOwEACHRvU3RyaW5nAQAXKExqYXZhL2xhbmcvU3RyaW5nO0lJKVYBAARhdXRoAQAmKExqYXZhL2xhbmcvU3RyaW5nOylMamF2YS9sYW5nL1N0cmluZzsBAAVscHVzaAEANyhMamF2YS9sYW5nL1N0cmluZztbTGphdmEvbGFuZy9TdHJpbmc7KUxqYXZhL2xhbmcvTG9uZzsBAAdoaW5jckJ5AQA3KExqYXZhL2xhbmcvU3RyaW5nO0xqYXZhL2xhbmcvU3RyaW5nO0opTGphdmEvbGFuZy9Mb25nOwAhABgAGQAAAAUABAAaABsAAAAEABwAGwAAAAQAHQAbAAAABAAeABsAAAAEAB8AIAAAAAwAAQAhACIAAQAjAAAAHQABAAEAAAAFKrQAAbAAAAABACQAAAAGAAEAAAAOAAEAJQAmAAEAIwAAACIAAgACAAAABiortQABsQAAAAEAJAAAAAoAAgAAABEABQASAAEAJwAiAAEAIwAAAB0AAQABAAAABSq0AAKwAAAAAQAkAAAABgABAAAAFAABACgAJgABACMAAAAiAAIAAgAAAAYqK7UAArEAAAABACQAAAAKAAIAAAAXAAUAGAABACkAIgABACMAAAAdAAEAAQAAAAUqtAADsAAAAAEAJAAAAAYAAQAAABoAAQAqACYAAQAjAAAAIgACAAIAAAAGKiu1AAOxAAAAAQAkAAAACgACAAAAHQAFAB4AAQArACIAAQAjAAAAHQABAAEAAAAFKrQABLAAAAABACQAAAAGAAEAAAAgAAEALAAmAAEAIwAAACIAAgACAAAABiortQAEsQAAAAEAJAAAAAoAAgAAACMABQAkAAEALQAuAAEAIwAAAB0AAQABAAAABSq0AAWsAAAAAQAkAAAABgABAAAAJgABAC8AMAABACMAAAAiAAIAAgAAAAYqG7UABbEAAAABACQAAAAKAAIAAAApAAUAKgABADEAMgABACMAAABSAAIAAQAAACIqtwAGKhIHtQABKhIHtQACKhIHtQADKhIHtQAEKgO1AAWxAAAAAQAkAAAAHgAHAAAALAAEAAgACgAJABAACgAWAAsAHAAMACEALQABADMAMgACACMAAACMAAYAAwAAAFy7AAhZtwAJKrQAArYAChILtgAKKrQAAbYAChIMtgAKtgANTLsADlkSDxEY6xIQtwARTSwSErYAE1csEhQEvQAVWQMrU7YAFlcsKrQAAyq0AAQKtgAXVyoEtQAFsQAAAAEAJAAAAB4ABwAAADYAIwA4ADIAOQA5ADoASAA7AFYAPABbAD0ANAAAAAQAAQA1AAEANgAAAAIANw==</byteCode>
+                    </class>
+                </byteCode>
+            </config>
+            <pd:inputBindings>
+                <javaCodeActivityInput>
+                    <xsl:if test="$ConversionDupQueue/ns:ActivityOutput/Body/root/mapStr">
+                        <MapStr>
+                            <xsl:value-of select="$ConversionDupQueue/ns:ActivityOutput/Body/root/mapStr"/>
+                        </MapStr>
+                    </xsl:if>
+                    <ts>
+                        <xsl:value-of select="$CheckClickLogUsingClickID/root/conversionTime"/>
+                    </ts>
+                    <key>
+                        <xsl:value-of select="&quot;conversionCounter&quot;"/>
+                    </key>
+                    <xsl:if test="$ConversionDupQueue/ns:ActivityOutput/Body/root/camp_id">
+                        <field>
+                            <xsl:value-of select="$ConversionDupQueue/ns:ActivityOutput/Body/root/camp_id"/>
+                        </field>
+                    </xsl:if>
+                </javaCodeActivityInput>
+            </pd:inputBindings>
+        </pd:activity>
+    </pd:group>
+    <pd:group name="dupgroup">
+        <pd:type>com.tibco.pe.core.LoopGroup</pd:type>
+        <pd:resourceType>ae.process.group</pd:resourceType>
+        <pd:x>537</pd:x>
+        <pd:y>422</pd:y>
+        <pd:width>180</pd:width>
+        <pd:height>140</pd:height>
+        <pd:collapsedWidth>57</pd:collapsedWidth>
+        <pd:collapsedHeight>70</pd:collapsedHeight>
+        <pd:groupVariables/>
+        <pd:joinToggle>inherit</pd:joinToggle>
+        <config>
+            <pd:groupType>errorLoop</pd:groupType>
+            <pd:serializable>false</pd:serializable>
+            <pd:indexSlot>dupindex</pd:indexSlot>
+            <pd:errorCondition>$dupindex &gt; 2</pd:errorCondition>
+            <pd:suspendAfterErrorRetry>false</pd:suspendAfterErrorRetry>
+        </config>
+        <pd:inputBindings/>
+        <pd:expanded>true</pd:expanded>
+        <pd:transition>
+            <pd:from>start</pd:from>
+            <pd:to>Redis_WriteConversionLog</pd:to>
+            <pd:lineType>Default</pd:lineType>
+            <pd:lineColor>-16777216</pd:lineColor>
+            <pd:conditionType>always</pd:conditionType>
+        </pd:transition>
+        <pd:transition>
+            <pd:from>Redis_WriteConversionLog</pd:from>
+            <pd:to>end</pd:to>
+            <pd:lineType>Default</pd:lineType>
+            <pd:lineColor>-16777216</pd:lineColor>
+            <pd:conditionType>always</pd:conditionType>
+        </pd:transition>
+        <pd:activity name="Redis_WriteConversionLog">
+            <pd:type>com.tibco.plugin.java.JavaActivity</pd:type>
+            <pd:resourceType>ae.javapalette.javaActivity</pd:resourceType>
+            <pd:description>concat(current-dateTime(),";",$ConversionDupQueue/ns:ActivityOutput/Body/root/mapStr,";","rm&amp;lf;")
+
+$_globalVariables/ns1:GlobalVariables/Log/ConversionLog</pd:description>
+            <pd:x>620</pd:x>
+            <pd:y>494</pd:y>
+            <config>
+                <fileName>JMSCheckDupConversionRedis_WriteConversionLog</fileName>
+                <packageName>Level2Server.JMSCheckDupConversion</packageName>
+                <fullsource>package Level2Server.JMSCheckDupConversion;
+import java.util.*;
+import java.io.*;
+import redis.clients.jedis.Jedis;     
+@SuppressWarnings("unchecked")
+public class JMSCheckDupConversionRedis_WriteConversionLog{
+/****** START SET/GET METHOD, DO NOT MODIFY *****/
+	protected String textContent = "";
+	public String gettextContent() {
+		return textContent;
+	}
+	public void settextContent(String val) {
+		textContent = val;
+	}
+/****** END SET/GET METHOD, DO NOT MODIFY *****/
+	public JMSCheckDupConversionRedis_WriteConversionLog() {
+	}
+	public void invoke() throws Exception {
+/* Available Variables: DO NOT MODIFY
+	In  : String textContent
+* Available Variables: DO NOT MODIFY *****/
+	
+
+	  Jedis jedis =  new Jedis("127.0.0.1",6379,100000); 
+	jedis.auth("!VMD1kult");
+	jedis.lpush("conversionLogList", textContent); 
+	
+
+	}
+}
+</fullsource>
+                <inputData>
+                    <row>
+                        <fieldName>textContent</fieldName>
+                        <fieldType>string</fieldType>
+                        <fieldRequired>optional</fieldRequired>
+                    </row>
+                </inputData>
+                <byteCode>
+                    <class>
+                        <name>JMSCheckDupConversionRedis_WriteConversionLog</name>
+                        <byteCode>yv66vgAAADQAMQkADQAeCgAOAB8IACAHACEIACIDAAGGoAoABAAjCAAkCgAEACUIACYHACcKAAQAKAcAKQcAKgEAC3RleHRDb250ZW50AQASTGphdmEvbGFuZy9TdHJpbmc7AQAOZ2V0dGV4dENvbnRlbnQBABQoKUxqYXZhL2xhbmcvU3RyaW5nOwEABENvZGUBAA9MaW5lTnVtYmVyVGFibGUBAA5zZXR0ZXh0Q29udGVudAEAFShMamF2YS9sYW5nL1N0cmluZzspVgEABjxpbml0PgEAAygpVgEABmludm9rZQEACkV4Y2VwdGlvbnMHACsBAApTb3VyY2VGaWxlAQAySk1TQ2hlY2tEdXBDb252ZXJzaW9uUmVkaXNfV3JpdGVDb252ZXJzaW9uTG9nLmphdmEMAA8AEAwAFwAYAQAAAQAZcmVkaXMvY2xpZW50cy9qZWRpcy9KZWRpcwEACTEyNy4wLjAuMQwAFwAsAQAJIVZNRDFrdWx0DAAtAC4BABFjb252ZXJzaW9uTG9nTGlzdAEAEGphdmEvbGFuZy9TdHJpbmcMAC8AMAEAUExldmVsMlNlcnZlci9KTVNDaGVja0R1cENvbnZlcnNpb24vSk1TQ2hlY2tEdXBDb252ZXJzaW9uUmVkaXNfV3JpdGVDb252ZXJzaW9uTG9nAQAQamF2YS9sYW5nL09iamVjdAEAE2phdmEvbGFuZy9FeGNlcHRpb24BABcoTGphdmEvbGFuZy9TdHJpbmc7SUkpVgEABGF1dGgBACYoTGphdmEvbGFuZy9TdHJpbmc7KUxqYXZhL2xhbmcvU3RyaW5nOwEABWxwdXNoAQA3KExqYXZhL2xhbmcvU3RyaW5nO1tMamF2YS9sYW5nL1N0cmluZzspTGphdmEvbGFuZy9Mb25nOwAhAA0ADgAAAAEABAAPABAAAAAEAAEAEQASAAEAEwAAAB0AAQABAAAABSq0AAGwAAAAAQAUAAAABgABAAAACgABABUAFgABABMAAAAiAAIAAgAAAAYqK7UAAbEAAAABABQAAAAKAAIAAAANAAUADgABABcAGAABABMAAAArAAIAAQAAAAsqtwACKhIDtQABsQAAAAEAFAAAAA4AAwAAABAABAAIAAoAEQABABkAGAACABMAAABNAAYAAgAAACm7AARZEgURGOsSBrcAB0wrEgi2AAlXKxIKBL0AC1kDKrQAAVO2AAxXsQAAAAEAFAAAABIABAAAABgADwAZABYAGgAoAB0AGgAAAAQAAQAbAAEAHAAAAAIAHQ==</byteCode>
+                    </class>
+                </byteCode>
+            </config>
+            <pd:inputBindings>
+                <javaCodeActivityInput>
+                    <textContent>
+                        <xsl:value-of select="concat($CheckClickLogUsingClickID/root/conversionTime,&quot;@_@&quot;,$ConversionDupQueue/ns:ActivityOutput/Body/root/mapStr,&quot;&quot;,&quot;@_@duplicated&#xA;&quot;)"/>
+                    </textContent>
+                </javaCodeActivityInput>
+            </pd:inputBindings>
+        </pd:activity>
+    </pd:group>
+    <pd:transition>
+        <pd:from>ConversionDupQueue</pd:from>
+        <pd:to>CheckClickLogUsingClickID</pd:to>
+        <pd:lineType>Default</pd:lineType>
+        <pd:lineColor>-16777216</pd:lineColor>
+        <pd:conditionType>always</pd:conditionType>
+    </pd:transition>
+    <pd:transition>
+        <pd:from>CheckClickLogUsingClickID</pd:from>
+        <pd:to>GetDupStatus</pd:to>
+        <pd:lineType>Default</pd:lineType>
+        <pd:lineColor>-16777216</pd:lineColor>
+        <pd:conditionType>always</pd:conditionType>
+    </pd:transition>
+    <pd:transition>
+        <pd:from>GetDupStatus</pd:from>
+        <pd:to>AppendClickToConversion</pd:to>
+        <pd:xpathDescription>not duplicate</pd:xpathDescription>
+        <pd:lineType>Default</pd:lineType>
+        <pd:lineColor>-16777216</pd:lineColor>
+        <pd:conditionType>otherwise</pd:conditionType>
+    </pd:transition>
+    <pd:transition>
+        <pd:from>rm</pd:from>
+        <pd:to>Transmitt</pd:to>
+        <pd:xpathDescription>rm ok and pl is not empty</pd:xpathDescription>
+        <pd:lineType>Default</pd:lineType>
+        <pd:lineColor>-16777216</pd:lineColor>
+        <pd:conditionType>xpath</pd:conditionType>
+        <pd:xpath>$rm/javaCodeActivityOutput/randomNumber&gt;$ConversionDupQueue/ns:ActivityOutput/Body/root/rm and exists($ConversionDupQueue/ns:ActivityOutput/Body/root/pl) and $ConversionDupQueue/ns:ActivityOutput/Body/root/pl!=""</pd:xpath>
+    </pd:transition>
+    <pd:transition>
+        <pd:from>GetDupStatus</pd:from>
+        <pd:to>ConfirmDuplicate</pd:to>
+        <pd:xpathDescription>duplicate</pd:xpathDescription>
+        <pd:lineType>Default</pd:lineType>
+        <pd:lineColor>-16777216</pd:lineColor>
+        <pd:conditionType>xpath</pd:conditionType>
+        <pd:xpath>$GetDupStatus/root/dup=1 or $GetDupStatus/root/dup="true"</pd:xpath>
+    </pd:transition>
+    <pd:transition>
+        <pd:from>ReplaceMacros</pd:from>
+        <pd:to>Map Data</pd:to>
+        <pd:lineType>Default</pd:lineType>
+        <pd:lineColor>-16777216</pd:lineColor>
+        <pd:conditionType>always</pd:conditionType>
+    </pd:transition>
+    <pd:transition>
+        <pd:from>Map Data</pd:from>
+        <pd:to>Confirm</pd:to>
+        <pd:lineType>Default</pd:lineType>
+        <pd:lineColor>-16777216</pd:lineColor>
+        <pd:conditionType>always</pd:conditionType>
+    </pd:transition>
+    <pd:transition>
+        <pd:from>ConfirmRM</pd:from>
+        <pd:to>LogRedisSuccess</pd:to>
+        <pd:lineType>Default</pd:lineType>
+        <pd:lineColor>-16777216</pd:lineColor>
+        <pd:conditionType>always</pd:conditionType>
+    </pd:transition>
+    <pd:transition>
+        <pd:from>LogRedisSuccess</pd:from>
+        <pd:to>End</pd:to>
+        <pd:lineType>Default</pd:lineType>
+        <pd:lineColor>-16777216</pd:lineColor>
+        <pd:conditionType>always</pd:conditionType>
+    </pd:transition>
+    <pd:transition>
+        <pd:description>$rm/javaCodeActivityOutput/randomNumber&gt;$ConversionDupQueue/ns:ActivityOutput/Body/root/rm  and $ConversionDupQueue/ns:ActivityOutput/Body/root/pl="" or not(exists($ConversionDupQueue/ns:ActivityOutput/Body/root/pl))</pd:description>
+        <pd:from>rm</pd:from>
+        <pd:to>Confirm</pd:to>
+        <pd:xpathDescription>rm ok but pl is empty</pd:xpathDescription>
+        <pd:lineType>Default</pd:lineType>
+        <pd:lineColor>-16777216</pd:lineColor>
+        <pd:conditionType>xpath</pd:conditionType>
+        <pd:xpath>$rm/javaCodeActivityOutput/randomNumber&gt;$ConversionDupQueue/ns:ActivityOutput/Body/root/rm and $ConversionDupQueue/ns:ActivityOutput/Body/root/pl="" or not(exists($ConversionDupQueue/ns:ActivityOutput/Body/root/pl))</pd:xpath>
+    </pd:transition>
+    <pd:transition>
+        <pd:from>Catch</pd:from>
+        <pd:to>SendAlertEmail</pd:to>
+        <pd:lineType>Default</pd:lineType>
+        <pd:lineColor>-16777216</pd:lineColor>
+        <pd:conditionType>always</pd:conditionType>
+    </pd:transition>
+    <pd:transition>
+        <pd:from>SendAlertEmail</pd:from>
+        <pd:to>End</pd:to>
+        <pd:lineType>Default</pd:lineType>
+        <pd:lineColor>-16777216</pd:lineColor>
+        <pd:conditionType>always</pd:conditionType>
+    </pd:transition>
+    <pd:transition>
+        <pd:from>ConversionToN</pd:from>
+        <pd:to>LogRedisSuccess</pd:to>
+        <pd:lineType>Default</pd:lineType>
+        <pd:lineColor>-16777216</pd:lineColor>
+        <pd:conditionType>always</pd:conditionType>
+    </pd:transition>
+    <pd:transition>
+        <pd:from>Confirm</pd:from>
+        <pd:to>Group</pd:to>
+        <pd:lineType>Default</pd:lineType>
+        <pd:lineColor>-16777216</pd:lineColor>
+        <pd:conditionType>always</pd:conditionType>
+    </pd:transition>
+    <pd:transition>
+        <pd:from>Group</pd:from>
+        <pd:to>LogRedisSuccess</pd:to>
+        <pd:lineType>Default</pd:lineType>
+        <pd:lineColor>-16777216</pd:lineColor>
+        <pd:conditionType>xpath</pd:conditionType>
+        <pd:xpath>$rm/javaCodeActivityOutput/randomNumber&gt;$ConversionDupQueue/ns:ActivityOutput/Body/root/rm  and $ConversionDupQueue/ns:ActivityOutput/Body/root/pl="" or not(exists($ConversionDupQueue/ns:ActivityOutput/Body/root/pl))</pd:xpath>
+    </pd:transition>
+    <pd:transition>
+        <pd:from>Group</pd:from>
+        <pd:to>ConversionToN</pd:to>
+        <pd:lineType>Default</pd:lineType>
+        <pd:lineColor>-16777216</pd:lineColor>
+        <pd:conditionType>otherwise</pd:conditionType>
+    </pd:transition>
+    <pd:transition>
+        <pd:from>Transmitt</pd:from>
+        <pd:to>ReplaceMacros</pd:to>
+        <pd:lineType>Default</pd:lineType>
+        <pd:lineColor>-16777216</pd:lineColor>
+        <pd:conditionType>always</pd:conditionType>
+    </pd:transition>
+    <pd:transition>
+        <pd:from>okrm_group</pd:from>
+        <pd:to>ConfirmRM</pd:to>
+        <pd:lineType>Default</pd:lineType>
+        <pd:lineColor>-16777216</pd:lineColor>
+        <pd:conditionType>always</pd:conditionType>
+    </pd:transition>
+    <pd:transition>
+        <pd:from>AppendClickToConversion</pd:from>
+        <pd:to>rm</pd:to>
+        <pd:lineType>Default</pd:lineType>
+        <pd:lineColor>-16777216</pd:lineColor>
+        <pd:conditionType>always</pd:conditionType>
+    </pd:transition>
+    <pd:transition>
+        <pd:from>ConfirmDuplicate</pd:from>
+        <pd:to>dupgroup</pd:to>
+        <pd:lineType>Default</pd:lineType>
+        <pd:lineColor>-16777216</pd:lineColor>
+        <pd:conditionType>always</pd:conditionType>
+    </pd:transition>
+    <pd:transition>
+        <pd:from>dupgroup</pd:from>
+        <pd:to>LogRedisSuccess</pd:to>
+        <pd:lineType>Default</pd:lineType>
+        <pd:lineColor>-16777216</pd:lineColor>
+        <pd:conditionType>always</pd:conditionType>
+    </pd:transition>
+    <pd:transition>
+        <pd:from>rm</pd:from>
+        <pd:to>okrm_group</pd:to>
+        <pd:lineType>Default</pd:lineType>
+        <pd:lineColor>-16777216</pd:lineColor>
+        <pd:conditionType>otherwise</pd:conditionType>
+    </pd:transition>
+</pd:ProcessDefinition>

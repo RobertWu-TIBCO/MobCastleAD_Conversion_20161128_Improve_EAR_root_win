@@ -1,0 +1,314 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<pd:ProcessDefinition xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:pd="http://xmlns.tibco.com/bw/process/2003" xmlns:ns="http://www.tibco.com/namespaces/tnt/plugins/file" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:ns2="http://www.tibco.com/namespaces/tnt/plugins/file/v2" xmlns:tib="http://www.tibco.com/bw/xslt/custom-functions" xmlns:ns1="http://www.tibco.com/pe/DeployedVarsType" xmlns:ns3="http://www.tibco.com/pe/WriteToLogActivitySchema">
+    <pd:name>Level2Server/CheckClickLog.process</pd:name>
+    <pd:startName>Start</pd:startName>
+    <pd:startType>
+        <xsd:element name="root">
+            <xsd:complexType>
+                <xsd:sequence>
+                    <xsd:element name="clickId" type="xsd:string" minOccurs="0"/>
+                    <xsd:element name="MapStr" type="xsd:string" minOccurs="0"/>
+                </xsd:sequence>
+            </xsd:complexType>
+        </xsd:element>
+    </pd:startType>
+    <pd:startX>64</pd:startX>
+    <pd:startY>67</pd:startY>
+    <pd:returnBindings>
+        <root>
+            <xsl:if test="$ConvertTSToDate/javaCodeActivityOutput/out">
+                <out>
+                    <xsl:value-of select="$ConvertTSToDate/javaCodeActivityOutput/out"/>
+                </out>
+            </xsl:if>
+            <conversionTime>
+                <xsl:value-of select="current-dateTime()"/>
+            </conversionTime>
+        </root>
+    </pd:returnBindings>
+    <pd:endName>End</pd:endName>
+    <pd:endType>
+        <xsd:element name="root">
+            <xsd:complexType>
+                <xsd:sequence>
+                    <xsd:element name="out" type="xsd:string" minOccurs="0"/>
+                    <xsd:element name="conversionTime" type="xsd:string" minOccurs="0"/>
+                </xsd:sequence>
+            </xsd:complexType>
+        </xsd:element>
+    </pd:endType>
+    <pd:endX>785</pd:endX>
+    <pd:endY>122</pd:endY>
+    <pd:errorSchemas/>
+    <pd:processVariables/>
+    <pd:targetNamespace>http://xmlns.example.com/1473782156198</pd:targetNamespace>
+    <pd:activity name="GetTSFromClickID">
+        <pd:type>com.tibco.plugin.mapper.MapperActivity</pd:type>
+        <pd:resourceType>ae.activities.MapperActivity</pd:resourceType>
+        <pd:x>66</pd:x>
+        <pd:y>257</pd:y>
+        <config>
+            <element>
+                <xsd:element name="root">
+                    <xsd:complexType>
+                        <xsd:sequence>
+                            <xsd:element name="TS" type="xsd:string" minOccurs="0"/>
+                        </xsd:sequence>
+                    </xsd:complexType>
+                </xsd:element>
+            </element>
+        </config>
+        <pd:inputBindings>
+            <root>
+                <TS>
+                    <xsl:value-of select="tib:substring-after-last($Start/root/clickId, &quot;_&quot;)"/>
+                </TS>
+            </root>
+        </pd:inputBindings>
+    </pd:activity>
+    <pd:activity name="ConvertTSToDate">
+        <pd:type>com.tibco.plugin.java.JavaActivity</pd:type>
+        <pd:resourceType>ae.javapalette.javaActivity</pd:resourceType>
+        <pd:x>202</pd:x>
+        <pd:y>258</pd:y>
+        <config>
+            <fileName>CheckClickLogConvertTSToDate</fileName>
+            <packageName>Level2Server.CheckClickLog</packageName>
+            <fullsource>package Level2Server.CheckClickLog;
+import java.util.*;
+import java.io.*;
+public class CheckClickLogConvertTSToDate{
+/****** START SET/GET METHOD, DO NOT MODIFY *****/
+	protected String in = "";
+	protected String out = "";
+	public String getin() {
+		return in;
+	}
+	public void setin(String val) {
+		in = val;
+	}
+	public String getout() {
+		return out;
+	}
+	public void setout(String val) {
+		out = val;
+	}
+/****** END SET/GET METHOD, DO NOT MODIFY *****/
+	public CheckClickLogConvertTSToDate() {
+	}
+	public void invoke() throws Exception {
+/* Available Variables: DO NOT MODIFY
+	In  : String in
+	Out : String out
+* Available Variables: DO NOT MODIFY *****/
+
+Long timestamp = Long.parseLong(in);
+
+ out = new java.text.SimpleDateFormat("yyyy-MM-dd HH").format(new java.util.Date(timestamp));   
+out=out.replace(" ","T");
+System.out.println(out);
+}
+}
+</fullsource>
+            <inputData>
+                <row>
+                    <fieldName>in</fieldName>
+                    <fieldType>string</fieldType>
+                    <fieldRequired>optional</fieldRequired>
+                </row>
+            </inputData>
+            <outputData>
+                <row>
+                    <fieldName>out</fieldName>
+                    <fieldType>string</fieldType>
+                    <fieldRequired>optional</fieldRequired>
+                </row>
+            </outputData>
+            <byteCode>
+                <class>
+                    <name>CheckClickLogConvertTSToDate</name>
+                    <byteCode>yv66vgAAADQAUQkAEwAnCQATACgKABQAKQgAKgoAKwAsCgArAC0HAC4IAC8KAAcAMAcAMQoAKwAyCgAKADMKAAcANAgANQgANgoANwA4CQA5ADoKADsAPAcAPQcAPgEAAmluAQASTGphdmEvbGFuZy9TdHJpbmc7AQADb3V0AQAFZ2V0aW4BABQoKUxqYXZhL2xhbmcvU3RyaW5nOwEABENvZGUBAA9MaW5lTnVtYmVyVGFibGUBAAVzZXRpbgEAFShMamF2YS9sYW5nL1N0cmluZzspVgEABmdldG91dAEABnNldG91dAEABjxpbml0PgEAAygpVgEABmludm9rZQEACkV4Y2VwdGlvbnMHAD8BAApTb3VyY2VGaWxlAQAhQ2hlY2tDbGlja0xvZ0NvbnZlcnRUU1RvRGF0ZS5qYXZhDAAVABYMABcAFgwAIAAhAQAABwBADABBAEIMAEMARAEAGmphdmEvdGV4dC9TaW1wbGVEYXRlRm9ybWF0AQANeXl5eS1NTS1kZCBISAwAIAAdAQAOamF2YS91dGlsL0RhdGUMAEUARgwAIABHDABIAEkBAAEgAQABVAcASgwASwBMBwBNDAAXAE4HAE8MAFAAHQEAN0xldmVsMlNlcnZlci9DaGVja0NsaWNrTG9nL0NoZWNrQ2xpY2tMb2dDb252ZXJ0VFNUb0RhdGUBABBqYXZhL2xhbmcvT2JqZWN0AQATamF2YS9sYW5nL0V4Y2VwdGlvbgEADmphdmEvbGFuZy9Mb25nAQAJcGFyc2VMb25nAQAVKExqYXZhL2xhbmcvU3RyaW5nOylKAQAHdmFsdWVPZgEAEyhKKUxqYXZhL2xhbmcvTG9uZzsBAAlsb25nVmFsdWUBAAMoKUoBAAQoSilWAQAGZm9ybWF0AQAkKExqYXZhL3V0aWwvRGF0ZTspTGphdmEvbGFuZy9TdHJpbmc7AQAQamF2YS9sYW5nL1N0cmluZwEAB3JlcGxhY2UBAEQoTGphdmEvbGFuZy9DaGFyU2VxdWVuY2U7TGphdmEvbGFuZy9DaGFyU2VxdWVuY2U7KUxqYXZhL2xhbmcvU3RyaW5nOwEAEGphdmEvbGFuZy9TeXN0ZW0BABVMamF2YS9pby9QcmludFN0cmVhbTsBABNqYXZhL2lvL1ByaW50U3RyZWFtAQAHcHJpbnRsbgAhABMAFAAAAAIABAAVABYAAAAEABcAFgAAAAYAAQAYABkAAQAaAAAAHQABAAEAAAAFKrQAAbAAAAABABsAAAAGAAEAAAAJAAEAHAAdAAEAGgAAACIAAgACAAAABiortQABsQAAAAEAGwAAAAoAAgAAAAwABQANAAEAHgAZAAEAGgAAAB0AAQABAAAABSq0AAKwAAAAAQAbAAAABgABAAAADwABAB8AHQABABoAAAAiAAIAAgAAAAYqK7UAArEAAAABABsAAAAKAAIAAAASAAUAEwABACAAIQABABoAAAA1AAIAAQAAABEqtwADKhIEtQABKhIEtQACsQAAAAEAGwAAABIABAAAABUABAAGAAoABwAQABYAAQAiACEAAgAaAAAAaAAGAAIAAABAKrQAAbgABbgABkwquwAHWRIItwAJuwAKWSu2AAu3AAy2AA21AAIqKrQAAhIOEg+2ABC1AAKyABEqtAACtgASsQAAAAEAGwAAABYABQAAAB0ACwAfACYAIAA1ACEAPwAiACMAAAAEAAEAJAABACUAAAACACY=</byteCode>
+                </class>
+            </byteCode>
+        </config>
+        <pd:inputBindings>
+            <javaCodeActivityInput>
+                <xsl:if test="$GetTSFromClickID/root/TS">
+                    <in>
+                        <xsl:value-of select="$GetTSFromClickID/root/TS"/>
+                    </in>
+                </xsl:if>
+            </javaCodeActivityInput>
+        </pd:inputBindings>
+    </pd:activity>
+    <pd:activity name="Read File">
+        <pd:type>com.tibco.plugin.file.FileReadActivity</pd:type>
+        <pd:resourceType>ae.activities.FileReadActivity</pd:resourceType>
+        <pd:description>$ConvertTSToDate/javaCodeActivityOutput/out,</pd:description>
+        <pd:x>210</pd:x>
+        <pd:y>113</pd:y>
+        <config>
+            <encoding>text</encoding>
+        </config>
+        <pd:inputBindings>
+            <ns2:ReadActivityInputClass>
+                <fileName>
+                    <xsl:value-of select="concat($_globalVariables/ns1:GlobalVariables/Log/clicktoconversionlog,&#xA;&#xA;&#xA;&#xA;&#xA;tib:substring-before-last($ConvertTSToDate/javaCodeActivityOutput/out,&quot;T&quot;),&#xA;&#xA;&#xA;&quot;\clicktoconversion.log_&quot;,$ConvertTSToDate/javaCodeActivityOutput/out)"/>
+                </fileName>
+            </ns2:ReadActivityInputClass>
+        </pd:inputBindings>
+    </pd:activity>
+    <pd:activity name="SetDup_1">
+        <pd:type>com.tibco.pe.core.SetSharedVariableActivity</pd:type>
+        <pd:resourceType>ae.activities.setSharedVariable</pd:resourceType>
+        <pd:x>486</pd:x>
+        <pd:y>195</pd:y>
+        <config>
+            <variableConfig>/Level2Server/ConversionStatus.jobsharedvariable</variableConfig>
+        </config>
+        <pd:inputBindings>
+            <root>
+                <dup>
+                    <xsl:value-of select="1"/>
+                </dup>
+            </root>
+        </pd:inputBindings>
+    </pd:activity>
+    <pd:activity name="SetDupStatus_0">
+        <pd:type>com.tibco.pe.core.SetSharedVariableActivity</pd:type>
+        <pd:resourceType>ae.activities.setSharedVariable</pd:resourceType>
+        <pd:x>473</pd:x>
+        <pd:y>42</pd:y>
+        <config>
+            <variableConfig>/Level2Server/ConversionStatus.jobsharedvariable</variableConfig>
+        </config>
+        <pd:inputBindings>
+            <root>
+                <dup>
+                    <xsl:value-of select="0"/>
+                </dup>
+            </root>
+        </pd:inputBindings>
+    </pd:activity>
+    <pd:activity name="SetDupStatus_0_OnFileNotFound">
+        <pd:type>com.tibco.pe.core.SetSharedVariableActivity</pd:type>
+        <pd:resourceType>ae.activities.setSharedVariable</pd:resourceType>
+        <pd:x>456</pd:x>
+        <pd:y>109</pd:y>
+        <config>
+            <variableConfig>/Level2Server/ConversionStatus.jobsharedvariable</variableConfig>
+        </config>
+        <pd:inputBindings>
+            <root>
+                <dup>
+                    <xsl:value-of select="0"/>
+                </dup>
+            </root>
+        </pd:inputBindings>
+    </pd:activity>
+    <pd:activity name="Catch">
+        <pd:type>com.tibco.pe.core.CatchActivity</pd:type>
+        <pd:resourceType>ae.activities.catch</pd:resourceType>
+        <pd:x>387</pd:x>
+        <pd:y>260</pd:y>
+        <pd:handler>true</pd:handler>
+        <config>
+            <catchAll>true</catchAll>
+        </config>
+        <pd:inputBindings/>
+    </pd:activity>
+    <pd:activity name="SetDupStatus_0_OnFileNotFound-1">
+        <pd:type>com.tibco.pe.core.SetSharedVariableActivity</pd:type>
+        <pd:resourceType>ae.activities.setSharedVariable</pd:resourceType>
+        <pd:x>612</pd:x>
+        <pd:y>260</pd:y>
+        <config>
+            <variableConfig>/Level2Server/ConversionStatus.jobsharedvariable</variableConfig>
+        </config>
+        <pd:inputBindings>
+            <root>
+                <dup>
+                    <xsl:value-of xmlns:xsl="http://www.w3.org/1999/XSL/Transform" select="0"/>
+                </dup>
+            </root>
+        </pd:inputBindings>
+    </pd:activity>
+    <pd:transition>
+        <pd:from>Start</pd:from>
+        <pd:to>GetTSFromClickID</pd:to>
+        <pd:lineType>Default</pd:lineType>
+        <pd:lineColor>-16777216</pd:lineColor>
+        <pd:conditionType>always</pd:conditionType>
+    </pd:transition>
+    <pd:transition>
+        <pd:from>GetTSFromClickID</pd:from>
+        <pd:to>ConvertTSToDate</pd:to>
+        <pd:lineType>Default</pd:lineType>
+        <pd:lineColor>-16777216</pd:lineColor>
+        <pd:conditionType>always</pd:conditionType>
+    </pd:transition>
+    <pd:transition>
+        <pd:from>ConvertTSToDate</pd:from>
+        <pd:to>Read File</pd:to>
+        <pd:lineType>Default</pd:lineType>
+        <pd:lineColor>-16777216</pd:lineColor>
+        <pd:conditionType>always</pd:conditionType>
+    </pd:transition>
+    <pd:transition>
+        <pd:from>Read File</pd:from>
+        <pd:to>SetDup_1</pd:to>
+        <pd:lineType>Default</pd:lineType>
+        <pd:lineColor>-16777216</pd:lineColor>
+        <pd:conditionType>xpath</pd:conditionType>
+        <pd:xpath>contains($Read-File/ns:ReadActivityOutputTextClass/fileContent/textContent, $Start/root/clickId)</pd:xpath>
+    </pd:transition>
+    <pd:transition>
+        <pd:from>Read File</pd:from>
+        <pd:to>SetDupStatus_0</pd:to>
+        <pd:lineType>Default</pd:lineType>
+        <pd:lineColor>-16777216</pd:lineColor>
+        <pd:conditionType>otherwise</pd:conditionType>
+    </pd:transition>
+    <pd:transition>
+        <pd:from>SetDup_1</pd:from>
+        <pd:to>End</pd:to>
+        <pd:lineType>Default</pd:lineType>
+        <pd:lineColor>-16777216</pd:lineColor>
+        <pd:conditionType>always</pd:conditionType>
+    </pd:transition>
+    <pd:transition>
+        <pd:from>SetDupStatus_0</pd:from>
+        <pd:to>End</pd:to>
+        <pd:lineType>Default</pd:lineType>
+        <pd:lineColor>-16777216</pd:lineColor>
+        <pd:conditionType>always</pd:conditionType>
+    </pd:transition>
+    <pd:transition>
+        <pd:from>Read File</pd:from>
+        <pd:to>SetDupStatus_0_OnFileNotFound</pd:to>
+        <pd:lineType>Default</pd:lineType>
+        <pd:lineColor>-16777216</pd:lineColor>
+        <pd:conditionType>error</pd:conditionType>
+    </pd:transition>
+    <pd:transition>
+        <pd:from>SetDupStatus_0_OnFileNotFound</pd:from>
+        <pd:to>End</pd:to>
+        <pd:lineType>Default</pd:lineType>
+        <pd:lineColor>-16777216</pd:lineColor>
+        <pd:conditionType>always</pd:conditionType>
+    </pd:transition>
+    <pd:transition>
+        <pd:from>Catch</pd:from>
+        <pd:to>SetDupStatus_0_OnFileNotFound-1</pd:to>
+        <pd:lineType>Default</pd:lineType>
+        <pd:lineColor>-16777216</pd:lineColor>
+        <pd:conditionType>always</pd:conditionType>
+    </pd:transition>
+    <pd:transition>
+        <pd:from>SetDupStatus_0_OnFileNotFound-1</pd:from>
+        <pd:to>End</pd:to>
+        <pd:lineType>Default</pd:lineType>
+        <pd:lineColor>-16777216</pd:lineColor>
+        <pd:conditionType>always</pd:conditionType>
+    </pd:transition>
+</pd:ProcessDefinition>

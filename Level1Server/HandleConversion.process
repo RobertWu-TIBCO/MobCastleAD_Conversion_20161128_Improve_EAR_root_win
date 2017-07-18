@@ -1,0 +1,831 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<pd:ProcessDefinition xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:pd="http://xmlns.tibco.com/bw/process/2003" xmlns:ns="http://www.tibco.com/namespaces/tnt/plugins/jms" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:ns2="http://www.tibco.com/pe/WriteToLogActivitySchema" xmlns:tib="http://www.tibco.com/bw/xslt/custom-functions" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <pd:name>Level1Server/HandleConversion.process</pd:name>
+    <pd:startName>HandleConversionRequest</pd:startName>
+    <pd:startX>0</pd:startX>
+    <pd:startY>0</pd:startY>
+    <pd:returnBindings/>
+    <pd:starter name="HandleConversionRequest">
+        <pd:type>com.tibco.plugin.http.HTTPEventSource</pd:type>
+        <pd:resourceType>httppalette.httpEventSource</pd:resourceType>
+        <pd:x>70</pd:x>
+        <pd:y>319</pd:y>
+        <config>
+            <outputMode>String</outputMode>
+            <defaultEncoding>ISO8859_1</defaultEncoding>
+            <inputOutputVersion>5.3.0</inputOutputVersion>
+            <newMimeSupport>true</newMimeSupport>
+            <sharedChannel>/Level1Server/ConversionConnection9095.sharedhttp</sharedChannel>
+            <Headers>
+                <xsd:element name="root">
+                    <xsd:complexType>
+                        <xsd:sequence>
+                            <xsd:element name="Accept" type="xsd:string" minOccurs="0"/>
+                            <xsd:element name="Accept-Charset" type="xsd:string" minOccurs="0"/>
+                            <xsd:element name="Accept-Encoding" type="xsd:string" minOccurs="0"/>
+                            <xsd:element name="Content-Type" type="xsd:string" minOccurs="0"/>
+                            <xsd:element name="Content-Length" type="xsd:string" minOccurs="0"/>
+                            <xsd:element name="Connection" type="xsd:string" minOccurs="0" maxOccurs="unbounded"/>
+                            <xsd:element name="Cookie" type="xsd:string" minOccurs="0" maxOccurs="unbounded"/>
+                            <xsd:element name="Pragma" type="xsd:string" minOccurs="0" maxOccurs="unbounded"/>
+                        </xsd:sequence>
+                    </xsd:complexType>
+                </xsd:element>
+            </Headers>
+        </config>
+        <pd:inputBindings/>
+    </pd:starter>
+    <pd:endName>End</pd:endName>
+    <pd:endX>552</pd:endX>
+    <pd:endY>323</pd:endY>
+    <pd:errorSchemas/>
+    <pd:processVariables/>
+    <pd:targetNamespace>http://xmlns.example.com/1473781169526</pd:targetNamespace>
+    <pd:activity name="ValidateClickID">
+        <pd:type>com.tibco.plugin.java.JavaActivity</pd:type>
+        <pd:resourceType>ae.javapalette.javaActivity</pd:resourceType>
+        <pd:description>judge clickid to follow the conversion pattern . if  the offer_id and n_id is not in the clickid pattern, give error
+
+if yes, check DB using offer_id,n_id for campaign id</pd:description>
+        <pd:x>74</pd:x>
+        <pd:y>35</pd:y>
+        <config>
+            <fileName>HandleConversionValidateClickID</fileName>
+            <packageName>Level1Server.HandleConversion</packageName>
+            <fullsource>package Level1Server.HandleConversion;
+import java.util.*;
+import java.io.*;
+public class HandleConversionValidateClickID{
+/****** START SET/GET METHOD, DO NOT MODIFY *****/
+	protected String AllParams = "";
+	protected String daytime_cps = "";
+	protected String sectime_cps = "";
+	protected String clickid = "";
+	protected String responseStatus = "";
+	protected Object ParamMapObj = null;
+	protected String offer_id = "";
+	protected String n_id = "";
+	protected String cid = "";
+	protected String click_ts = "";
+	protected String ParamMapStr = "";
+	public String getAllParams() {
+		return AllParams;
+	}
+	public void setAllParams(String val) {
+		AllParams = val;
+	}
+	public String getdaytime_cps() {
+		return daytime_cps;
+	}
+	public void setdaytime_cps(String val) {
+		daytime_cps = val;
+	}
+	public String getsectime_cps() {
+		return sectime_cps;
+	}
+	public void setsectime_cps(String val) {
+		sectime_cps = val;
+	}
+	public String getclickid() {
+		return clickid;
+	}
+	public void setclickid(String val) {
+		clickid = val;
+	}
+	public String getresponseStatus() {
+		return responseStatus;
+	}
+	public void setresponseStatus(String val) {
+		responseStatus = val;
+	}
+	public Object getParamMapObj() {
+		return ParamMapObj;
+	}
+	public void setParamMapObj(Object val) {
+		ParamMapObj = val;
+	}
+	public String getoffer_id() {
+		return offer_id;
+	}
+	public void setoffer_id(String val) {
+		offer_id = val;
+	}
+	public String getn_id() {
+		return n_id;
+	}
+	public void setn_id(String val) {
+		n_id = val;
+	}
+	public String getcid() {
+		return cid;
+	}
+	public void setcid(String val) {
+		cid = val;
+	}
+	public String getclick_ts() {
+		return click_ts;
+	}
+	public void setclick_ts(String val) {
+		click_ts = val;
+	}
+	public String getParamMapStr() {
+		return ParamMapStr;
+	}
+	public void setParamMapStr(String val) {
+		ParamMapStr = val;
+	}
+/****** END SET/GET METHOD, DO NOT MODIFY *****/
+	public HandleConversionValidateClickID() {
+	}
+	public void invoke() throws Exception {
+/* Available Variables: DO NOT MODIFY
+	In  : String AllParams
+	In  : String daytime_cps
+	In  : String sectime_cps
+	Out : String clickid
+	Out : String responseStatus
+	Out : Object ParamMapObj
+	Out : String offer_id
+	Out : String n_id
+	Out : String cid
+	Out : String click_ts
+	Out : String ParamMapStr
+* Available Variables: DO NOT MODIFY *****/
+		Map&lt;String,String&gt; ParamMap = new HashMap&lt;String,String&gt;();
+		String[] AllParams_array,param_array;
+		AllParams_array = AllParams.split("[&amp;]");
+		System.out.println(" AllParams after &amp; split : \t "+Arrays.toString(AllParams_array));
+		for (String param_i:AllParams_array) {
+			param_array =param_i.split("[=]");
+			if(param_array.length&gt;1)
+		       ParamMap.put(param_array[0], param_array[1]);			 
+		}
+		
+		clickid=ParamMap.get("clickid");
+		if(clickid==null)
+		responseStatus="error-0";
+		else{
+		String[] clickid_array = clickid.split("[_]");			
+		System.out.println("clickid after &amp; split : \t "+Arrays.toString(clickid_array));			
+		if(clickid_array.length&lt;2)
+				responseStatus="error-0";	
+	   	else{
+		try{		
+			offer_id=clickid_array[0].split("c")[0];
+			n_id=clickid_array[0].split("c")[1];
+			int tmp=clickid_array.length-1;
+			click_ts=clickid_array[tmp];
+
+			for (int i = 1; i &lt; (clickid_array.length-1); i++) {
+				cid+=clickid_array[i]+"_";
+			}				
+			cid=cid.substring(0,cid.lastIndexOf("_"));
+
+			ParamMap.put("offer_id",offer_id);
+			ParamMap.put("n_id",n_id);
+			ParamMap.put("cid",cid);
+			ParamMap.put("daytime",daytime_cps);
+			ParamMap.put("sectime",sectime_cps);
+		}
+		catch(Exception e){
+			responseStatus="error-0";
+		}
+		}
+		}
+		ParamMapObj=ParamMap;
+		ParamMapStr=ParamMap.toString();
+		System.out.println("current ParamMapStr is : \t "+ParamMapStr);
+}
+}
+</fullsource>
+            <outputData>
+                <row>
+                    <fieldName>clickid</fieldName>
+                    <fieldType>string</fieldType>
+                    <fieldRequired>optional</fieldRequired>
+                </row>
+                <row>
+                    <fieldName>responseStatus</fieldName>
+                    <fieldType>string</fieldType>
+                    <fieldRequired>optional</fieldRequired>
+                </row>
+                <row>
+                    <fieldName>ParamMapObj</fieldName>
+                    <fieldType>ObjectReference</fieldType>
+                    <fieldRequired>optional</fieldRequired>
+                </row>
+                <row>
+                    <fieldName>offer_id</fieldName>
+                    <fieldType>string</fieldType>
+                    <fieldRequired>optional</fieldRequired>
+                </row>
+                <row>
+                    <fieldName>n_id</fieldName>
+                    <fieldType>string</fieldType>
+                    <fieldRequired>optional</fieldRequired>
+                </row>
+                <row>
+                    <fieldName>cid</fieldName>
+                    <fieldType>string</fieldType>
+                    <fieldRequired>optional</fieldRequired>
+                </row>
+                <row>
+                    <fieldName>click_ts</fieldName>
+                    <fieldType>string</fieldType>
+                    <fieldRequired>optional</fieldRequired>
+                </row>
+                <row>
+                    <fieldName>ParamMapStr</fieldName>
+                    <fieldType>string</fieldType>
+                    <fieldRequired>optional</fieldRequired>
+                </row>
+            </outputData>
+            <inputData>
+                <row>
+                    <fieldName>AllParams</fieldName>
+                    <fieldType>string</fieldType>
+                    <fieldRequired>optional</fieldRequired>
+                </row>
+                <row>
+                    <fieldName>daytime_cps</fieldName>
+                    <fieldType>string</fieldType>
+                    <fieldRequired>optional</fieldRequired>
+                </row>
+                <row>
+                    <fieldName>sectime_cps</fieldName>
+                    <fieldType>string</fieldType>
+                    <fieldRequired>optional</fieldRequired>
+                </row>
+            </inputData>
+            <byteCode>
+                <class>
+                    <name>HandleConversionValidateClickID</name>
+                    <byteCode>yv66vgAAADQApgkALgBkCQAuAGUJAC4AZgkALgBnCQAuAGgJAC4AaQkALgBqCQAuAGsJAC4AbAkALgBtCQAuAG4KAC8AbwgAcAcAcQoADgBvCAByCgAeAHMJAHQAdQcAdgoAEwBvCAB3CgATAHgKAHkAegoAEwB7CgB8AH0IAH4LAH8AgAgANAsAfwCBBwCCCACDCACECACFCACGCACHCgAeAIgKAB4AiQgAOAgAOQgAOggAiggAiwcAjAoALwB7CACNBwCOBwCPAQAJQWxsUGFyYW1zAQASTGphdmEvbGFuZy9TdHJpbmc7AQALZGF5dGltZV9jcHMBAAtzZWN0aW1lX2NwcwEAB2NsaWNraWQBAA5yZXNwb25zZVN0YXR1cwEAC1BhcmFtTWFwT2JqAQASTGphdmEvbGFuZy9PYmplY3Q7AQAIb2ZmZXJfaWQBAARuX2lkAQADY2lkAQAIY2xpY2tfdHMBAAtQYXJhbU1hcFN0cgEADGdldEFsbFBhcmFtcwEAFCgpTGphdmEvbGFuZy9TdHJpbmc7AQAEQ29kZQEAD0xpbmVOdW1iZXJUYWJsZQEADHNldEFsbFBhcmFtcwEAFShMamF2YS9sYW5nL1N0cmluZzspVgEADmdldGRheXRpbWVfY3BzAQAOc2V0ZGF5dGltZV9jcHMBAA5nZXRzZWN0aW1lX2NwcwEADnNldHNlY3RpbWVfY3BzAQAKZ2V0Y2xpY2tpZAEACnNldGNsaWNraWQBABFnZXRyZXNwb25zZVN0YXR1cwEAEXNldHJlc3BvbnNlU3RhdHVzAQAOZ2V0UGFyYW1NYXBPYmoBABQoKUxqYXZhL2xhbmcvT2JqZWN0OwEADnNldFBhcmFtTWFwT2JqAQAVKExqYXZhL2xhbmcvT2JqZWN0OylWAQALZ2V0b2ZmZXJfaWQBAAtzZXRvZmZlcl9pZAEAB2dldG5faWQBAAdzZXRuX2lkAQAGZ2V0Y2lkAQAGc2V0Y2lkAQALZ2V0Y2xpY2tfdHMBAAtzZXRjbGlja190cwEADmdldFBhcmFtTWFwU3RyAQAOc2V0UGFyYW1NYXBTdHIBAAY8aW5pdD4BAAMoKVYBAAZpbnZva2UBAA1TdGFja01hcFRhYmxlBwCOBwCQBwCRBwCMAQAKRXhjZXB0aW9ucwEAClNvdXJjZUZpbGUBACRIYW5kbGVDb252ZXJzaW9uVmFsaWRhdGVDbGlja0lELmphdmEMADAAMQwAMgAxDAAzADEMADQAMQwANQAxDAA2ADcMADgAMQwAOQAxDAA6ADEMADsAMQwAPAAxDABZAFoBAAABABFqYXZhL3V0aWwvSGFzaE1hcAEAA1smXQwAkgCTBwCUDACVAJYBABdqYXZhL2xhbmcvU3RyaW5nQnVpbGRlcgEAHSBBbGxQYXJhbXMgYWZ0ZXIgJiBzcGxpdCA6IAkgDACXAJgHAJkMAJoAmwwAmgA+BwCcDACdAEIBAANbPV0HAJAMAJ4AnwwAoAChAQAQamF2YS9sYW5nL1N0cmluZwEAB2Vycm9yLTABAANbX10BABpjbGlja2lkIGFmdGVyICYgc3BsaXQgOiAJIAEAAWMBAAFfDACiAKMMAKQApQEAB2RheXRpbWUBAAdzZWN0aW1lAQATamF2YS9sYW5nL0V4Y2VwdGlvbgEAG2N1cnJlbnQgUGFyYW1NYXBTdHIgaXMgOiAJIAEAPUxldmVsMVNlcnZlci9IYW5kbGVDb252ZXJzaW9uL0hhbmRsZUNvbnZlcnNpb25WYWxpZGF0ZUNsaWNrSUQBABBqYXZhL2xhbmcvT2JqZWN0AQANamF2YS91dGlsL01hcAEAE1tMamF2YS9sYW5nL1N0cmluZzsBAAVzcGxpdAEAJyhMamF2YS9sYW5nL1N0cmluZzspW0xqYXZhL2xhbmcvU3RyaW5nOwEAEGphdmEvbGFuZy9TeXN0ZW0BAANvdXQBABVMamF2YS9pby9QcmludFN0cmVhbTsBAAZhcHBlbmQBAC0oTGphdmEvbGFuZy9TdHJpbmc7KUxqYXZhL2xhbmcvU3RyaW5nQnVpbGRlcjsBABBqYXZhL3V0aWwvQXJyYXlzAQAIdG9TdHJpbmcBACcoW0xqYXZhL2xhbmcvT2JqZWN0OylMamF2YS9sYW5nL1N0cmluZzsBABNqYXZhL2lvL1ByaW50U3RyZWFtAQAHcHJpbnRsbgEAA3B1dAEAOChMamF2YS9sYW5nL09iamVjdDtMamF2YS9sYW5nL09iamVjdDspTGphdmEvbGFuZy9PYmplY3Q7AQADZ2V0AQAmKExqYXZhL2xhbmcvT2JqZWN0OylMamF2YS9sYW5nL09iamVjdDsBAAtsYXN0SW5kZXhP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</byteCode>
+                </class>
+            </byteCode>
+        </config>
+        <pd:inputBindings>
+            <javaCodeActivityInput>
+                <AllParams>
+                    <xsl:value-of select="substring-after($HandleConversionRequest/ProcessStarterOutput/RequestURI, '?')"/>
+                </AllParams>
+                <daytime_cps>
+                    <xsl:value-of select="tib:format-date(&quot;yyyyMMdd&quot;,current-date())"/>
+                </daytime_cps>
+                <sectime_cps>
+                    <xsl:value-of select="tib:format-time(&quot;HHmmss&quot;,substring-before(substring-after(current-dateTime(), &quot;T&quot;), &quot;+&quot;))"/>
+                </sectime_cps>
+            </javaCodeActivityInput>
+        </pd:inputBindings>
+    </pd:activity>
+    <pd:activity name="ErrorResponse">
+        <pd:type>com.tibco.plugin.http.HTTPResponseActivity</pd:type>
+        <pd:resourceType>httppalette.httpWebResponse</pd:resourceType>
+        <pd:x>380</pd:x>
+        <pd:y>225</pd:y>
+        <config>
+            <closeConnection>true</closeConnection>
+            <eventSource>HandleConversionRequest</eventSource>
+            <Headers>
+                <xsd:element name="root">
+                    <xsd:complexType>
+                        <xsd:sequence>
+                            <xsd:element name="StatusLine" type="xsd:string" minOccurs="0"/>
+                            <xsd:element name="Content-Type" type="xsd:string" minOccurs="0"/>
+                            <xsd:element name="Set-Cookie" type="xsd:string" minOccurs="0"/>
+                            <xsd:element name="Pragma" type="xsd:string" minOccurs="0"/>
+                            <xsd:element name="Location" type="xsd:string" minOccurs="0"/>
+                        </xsd:sequence>
+                    </xsd:complexType>
+                </xsd:element>
+            </Headers>
+        </config>
+        <pd:inputBindings>
+            <ResponseActivityInput>
+                <asciiContent>
+                    <xsl:value-of select="$GetErrorResponse/root/errorResponse"/>
+                </asciiContent>
+            </ResponseActivityInput>
+        </pd:inputBindings>
+    </pd:activity>
+    <pd:activity name="SuccessResponse">
+        <pd:type>com.tibco.plugin.http.HTTPResponseActivity</pd:type>
+        <pd:resourceType>httppalette.httpWebResponse</pd:resourceType>
+        <pd:x>398</pd:x>
+        <pd:y>126</pd:y>
+        <config>
+            <closeConnection>true</closeConnection>
+            <eventSource>HandleConversionRequest</eventSource>
+            <Headers>
+                <xsd:element name="root">
+                    <xsd:complexType>
+                        <xsd:sequence>
+                            <xsd:element name="StatusLine" type="xsd:string" minOccurs="0"/>
+                            <xsd:element name="Content-Type" type="xsd:string" minOccurs="0"/>
+                            <xsd:element name="Set-Cookie" type="xsd:string" minOccurs="0"/>
+                            <xsd:element name="Pragma" type="xsd:string" minOccurs="0"/>
+                            <xsd:element name="Location" type="xsd:string" minOccurs="0"/>
+                        </xsd:sequence>
+                    </xsd:complexType>
+                </xsd:element>
+            </Headers>
+        </config>
+        <pd:inputBindings>
+            <ResponseActivityInput>
+                <asciiContent>
+                    <xsl:value-of select="&quot;success&quot;"/>
+                </asciiContent>
+            </ResponseActivityInput>
+        </pd:inputBindings>
+    </pd:activity>
+    <pd:activity name="Get_CampPl_Rm">
+        <pd:type>com.tibco.plugin.jdbc.JDBCGeneralActivity</pd:type>
+        <pd:resourceType>ae.activities.JDBCGeneralActivity</pd:resourceType>
+        <pd:description>camcampaign_pl
+campaign_rm</pd:description>
+        <pd:x>233</pd:x>
+        <pd:y>35</pd:y>
+        <config>
+            <timeout>30</timeout>
+            <commit>false</commit>
+            <maxRows>1000</maxRows>
+            <jdbcSharedConfig>/Level3Server/MySql.sharedjdbc</jdbcSharedConfig>
+        </config>
+        <pd:inputBindings>
+            <jdbcGeneralActivityInput>
+                <statement>
+                    <xsl:value-of select="concat(&quot;select campaign_pl,campaign_rm,campaign_id from campaign where offer_id=&quot;,$ValidateClickID/javaCodeActivityOutput/offer_id,&quot; and n_id=&quot;,$ValidateClickID/javaCodeActivityOutput/n_id)"/>
+                </statement>
+            </jdbcGeneralActivityInput>
+        </pd:inputBindings>
+    </pd:activity>
+    <pd:activity name="Catch">
+        <pd:type>com.tibco.pe.core.CatchActivity</pd:type>
+        <pd:resourceType>ae.activities.catch</pd:resourceType>
+        <pd:x>737</pd:x>
+        <pd:y>39</pd:y>
+        <pd:handler>true</pd:handler>
+        <config>
+            <fault>localname=JDBCSQLException namespace=http://schemas.tibco.com/bw/plugins/jdbc/5.0/jdbcExceptions</fault>
+            <catchAll>true</catchAll>
+        </config>
+        <pd:inputBindings/>
+    </pd:activity>
+    <pd:activity name="ErrorHandle">
+        <pd:type>com.tibco.plugin.http.HTTPResponseActivity</pd:type>
+        <pd:resourceType>httppalette.httpWebResponse</pd:resourceType>
+        <pd:x>649</pd:x>
+        <pd:y>39</pd:y>
+        <config>
+            <closeConnection>true</closeConnection>
+            <eventSource>HandleConversionRequest</eventSource>
+            <Headers>
+                <xsd:element name="root">
+                    <xsd:complexType>
+                        <xsd:sequence>
+                            <xsd:element name="StatusLine" type="xsd:string" minOccurs="0"/>
+                            <xsd:element name="Content-Type" type="xsd:string" minOccurs="0"/>
+                            <xsd:element name="Set-Cookie" type="xsd:string" minOccurs="0"/>
+                            <xsd:element name="Pragma" type="xsd:string" minOccurs="0"/>
+                            <xsd:element name="Location" type="xsd:string" minOccurs="0"/>
+                        </xsd:sequence>
+                    </xsd:complexType>
+                </xsd:element>
+            </Headers>
+        </config>
+        <pd:inputBindings>
+            <ResponseActivityInput>
+                <asciiContent>
+                    <xsl:value-of select="&quot;error&quot;"/>
+                </asciiContent>
+            </ResponseActivityInput>
+        </pd:inputBindings>
+    </pd:activity>
+    <pd:activity name="CheckNTableForN_Pl">
+        <pd:type>com.tibco.plugin.jdbc.JDBCGeneralActivity</pd:type>
+        <pd:resourceType>ae.activities.JDBCGeneralActivity</pd:resourceType>
+        <pd:x>396</pd:x>
+        <pd:y>36</pd:y>
+        <config>
+            <timeout>30</timeout>
+            <commit>false</commit>
+            <maxRows>1000</maxRows>
+            <jdbcSharedConfig>/Level3Server/MySql.sharedjdbc</jdbcSharedConfig>
+        </config>
+        <pd:inputBindings>
+            <jdbcGeneralActivityInput>
+                <statement>
+                    <xsl:value-of select="concat(&quot;select n_pl from n where n_id=&quot;,$ValidateClickID/javaCodeActivityOutput/n_id)"/>
+                </statement>
+            </jdbcGeneralActivityInput>
+        </pd:inputBindings>
+    </pd:activity>
+    <pd:activity name="Replace_campaign_pl">
+        <pd:type>com.tibco.plugin.mapper.MapperActivity</pd:type>
+        <pd:resourceType>ae.activities.MapperActivity</pd:resourceType>
+        <pd:x>549</pd:x>
+        <pd:y>35</pd:y>
+        <config>
+            <element>
+                <xsd:element name="root">
+                    <xsd:complexType>
+                        <xsd:sequence>
+                            <xsd:element name="n_pl" type="xsd:string" minOccurs="0"/>
+                        </xsd:sequence>
+                    </xsd:complexType>
+                </xsd:element>
+            </element>
+        </config>
+        <pd:inputBindings>
+            <root>
+                <xsl:if test="not(($CheckNTableForN_Pl/jdbcGeneralActivityOutput/unknownResultset[1]/row[1]/column[1]/value/@xsi:nil=(&quot;true&quot;)) or ($CheckNTableForN_Pl/jdbcGeneralActivityOutput/unknownResultset[1]/row[1]/column[1]/value/@xsi:nil=(&quot;1&quot;)))">
+                    <n_pl>
+                        <xsl:value-of select="$CheckNTableForN_Pl/jdbcGeneralActivityOutput/unknownResultset[1]/row[1]/column[1]/value"/>
+                    </n_pl>
+                </xsl:if>
+            </root>
+        </pd:inputBindings>
+    </pd:activity>
+    <pd:activity name="SetErrorResponse">
+        <pd:type>com.tibco.pe.core.SetSharedVariableActivity</pd:type>
+        <pd:resourceType>ae.activities.setSharedVariable</pd:resourceType>
+        <pd:x>276</pd:x>
+        <pd:y>143</pd:y>
+        <config>
+            <variableConfig>/Level2Server/ErrorResponse.jobsharedvariable</variableConfig>
+        </config>
+        <pd:inputBindings>
+            <root>
+                <errorResponse>
+                    <xsl:value-of select="&quot;error-1&quot;"/>
+                </errorResponse>
+            </root>
+        </pd:inputBindings>
+    </pd:activity>
+    <pd:activity name="SetErrorResponse-0">
+        <pd:type>com.tibco.pe.core.SetSharedVariableActivity</pd:type>
+        <pd:resourceType>ae.activities.setSharedVariable</pd:resourceType>
+        <pd:x>171</pd:x>
+        <pd:y>127</pd:y>
+        <config>
+            <variableConfig>/Level2Server/ErrorResponse.jobsharedvariable</variableConfig>
+        </config>
+        <pd:inputBindings>
+            <root>
+                <xsl:if test="$ValidateClickID/javaCodeActivityOutput/responseStatus">
+                    <errorResponse>
+                        <xsl:value-of select="$ValidateClickID/javaCodeActivityOutput/responseStatus"/>
+                    </errorResponse>
+                </xsl:if>
+            </root>
+        </pd:inputBindings>
+    </pd:activity>
+    <pd:activity name="GetErrorResponse">
+        <pd:type>com.tibco.pe.core.GetSharedVariableActivity</pd:type>
+        <pd:resourceType>ae.activities.getSharedVariable</pd:resourceType>
+        <pd:x>168</pd:x>
+        <pd:y>224</pd:y>
+        <config>
+            <variableConfig>/Level2Server/ErrorResponse.jobsharedvariable</variableConfig>
+        </config>
+        <pd:inputBindings/>
+    </pd:activity>
+    <pd:activity name="SendTo_ConversionDupQueue">
+        <pd:type>com.tibco.plugin.jms.JMSQueueSendActivity</pd:type>
+        <pd:resourceType>ae.activities.JMSQueueSendActivity</pd:resourceType>
+        <pd:x>551</pd:x>
+        <pd:y>126</pd:y>
+        <config>
+            <PermittedMessageType>XML Text</PermittedMessageType>
+            <SessionAttributes>
+                <transacted>false</transacted>
+                <acknowledgeMode>1</acknowledgeMode>
+                <maxSessions>1</maxSessions>
+                <destination>ConversionDupQueue</destination>
+            </SessionAttributes>
+            <ConfigurableHeaders>
+                <JMSDeliveryMode>PERSISTENT</JMSDeliveryMode>
+                <JMSExpiration>0</JMSExpiration>
+                <JMSPriority>4</JMSPriority>
+            </ConfigurableHeaders>
+            <ConnectionReference>/Level2Server/JMS Local.sharedjmscon</ConnectionReference>
+            <InDataxsdString>
+                <xsd:element name="root">
+                    <xsd:complexType>
+                        <xsd:sequence>
+                            <xsd:element name="rm" type="xsd:string" minOccurs="0"/>
+                            <xsd:element name="pl" type="xsd:string" minOccurs="0"/>
+                            <xsd:element name="clickid" type="xsd:string" minOccurs="0"/>
+                            <xsd:element name="mapStr" type="xsd:string" minOccurs="0"/>
+                            <xsd:element name="camp_id" type="xsd:string" minOccurs="0"/>
+                        </xsd:sequence>
+                    </xsd:complexType>
+                </xsd:element>
+            </InDataxsdString>
+        </config>
+        <pd:inputBindings>
+            <ns:ActivityInput>
+                <Body>
+                    <root>
+                        <xsl:if test="$Get_CampPl_Rm/jdbcGeneralActivityOutput/unknownResultset[1]/row[1]/column[2]/value">
+                            <rm>
+                                <xsl:value-of select="$Get_CampPl_Rm/jdbcGeneralActivityOutput/unknownResultset[1]/row[1]/column[2]/value"/>
+                            </rm>
+                        </xsl:if>
+                        <xsl:choose>
+                            <xsl:when test="$Get_CampPl_Rm/jdbcGeneralActivityOutput/unknownResultset[1]/row[1]/column[1]/value=&quot;&quot;">
+                                <xsl:if test="$Replace_campaign_pl/root/n_pl">
+                                    <pl>
+                                        <xsl:value-of select="$Replace_campaign_pl/root/n_pl"/>
+                                    </pl>
+                                </xsl:if>
+                            </xsl:when>
+                            <xsl:when test="$Get_CampPl_Rm/jdbcGeneralActivityOutput/unknownResultset[1]/row[1]/column[1]/value!=&quot;&quot;">
+                                <xsl:if test="$Get_CampPl_Rm/jdbcGeneralActivityOutput/unknownResultset[1]/row[1]/column[1]/value">
+                                    <pl>
+                                        <xsl:value-of select="$Get_CampPl_Rm/jdbcGeneralActivityOutput/unknownResultset[1]/row[1]/column[1]/value"/>
+                                    </pl>
+                                </xsl:if>
+                            </xsl:when>
+                        </xsl:choose>
+                        <xsl:if test="$ValidateClickID/javaCodeActivityOutput/clickid">
+                            <clickid>
+                                <xsl:value-of select="$ValidateClickID/javaCodeActivityOutput/clickid"/>
+                            </clickid>
+                        </xsl:if>
+                        <xsl:if test="$ValidateClickID/javaCodeActivityOutput/ParamMapStr">
+                            <mapStr>
+                                <xsl:value-of select="$ValidateClickID/javaCodeActivityOutput/ParamMapStr"/>
+                            </mapStr>
+                        </xsl:if>
+                        <xsl:if test="$Get_CampPl_Rm/jdbcGeneralActivityOutput/unknownResultset[1]/row[1]/column[3]/value">
+                            <camp_id>
+                                <xsl:value-of select="$Get_CampPl_Rm/jdbcGeneralActivityOutput/unknownResultset[1]/row[1]/column[3]/value"/>
+                            </camp_id>
+                        </xsl:if>
+                    </root>
+                </Body>
+            </ns:ActivityInput>
+        </pd:inputBindings>
+    </pd:activity>
+    <pd:activity name="TimeLog">
+        <pd:type>com.tibco.pe.core.WriteToLogActivity</pd:type>
+        <pd:resourceType>ae.activities.log</pd:resourceType>
+        <pd:x>75</pd:x>
+        <pd:y>186</pd:y>
+        <config>
+            <role>TimeLog</role>
+        </config>
+        <pd:inputBindings>
+            <ns2:ActivityInput>
+                <message>
+                    <xsl:value-of select="concat(&quot; ### conversion starts at &quot;, current-dateTime())"/>
+                </message>
+            </ns2:ActivityInput>
+        </pd:inputBindings>
+    </pd:activity>
+    <pd:activity name="TimeLogEnd">
+        <pd:type>com.tibco.pe.core.WriteToLogActivity</pd:type>
+        <pd:resourceType>ae.activities.log</pd:resourceType>
+        <pd:x>553</pd:x>
+        <pd:y>224</pd:y>
+        <config>
+            <role>TimeLogEnd</role>
+        </config>
+        <pd:inputBindings>
+            <ns2:ActivityInput>
+                <message>
+                    <xsl:value-of select="concat(&quot; ### conversion finishes at &quot;, current-dateTime())"/>
+                </message>
+            </ns2:ActivityInput>
+        </pd:inputBindings>
+    </pd:activity>
+    <pd:activity name="TimeLogEndError">
+        <pd:type>com.tibco.pe.core.WriteToLogActivity</pd:type>
+        <pd:resourceType>ae.activities.log</pd:resourceType>
+        <pd:x>653</pd:x>
+        <pd:y>324</pd:y>
+        <config>
+            <role>TimeLogEndError</role>
+        </config>
+        <pd:inputBindings>
+            <ns2:ActivityInput>
+                <message>
+                    <xsl:value-of select="concat(&quot; ### conversion handling hits error at &quot;, current-dateTime())"/>
+                </message>
+            </ns2:ActivityInput>
+        </pd:inputBindings>
+    </pd:activity>
+    <pd:activity name="SendAlertEmail">
+        <pd:type>com.tibco.pe.core.CallProcessActivity</pd:type>
+        <pd:resourceType>ae.process.subprocess</pd:resourceType>
+        <pd:x>652</pd:x>
+        <pd:y>155</pd:y>
+        <config>
+            <processName>/Level2Server/SendAlertMail.process</processName>
+            <spawn>true</spawn>
+        </config>
+        <pd:inputBindings>
+            <root>
+                <subjectandcontent>
+                    <xsl:value-of select="$Catch/exceptiondata/*"/>
+                </subjectandcontent>
+                <subject>
+                    <xsl:value-of select="&quot; HTTP Listener Error &quot;"/>
+                </subject>
+            </root>
+        </pd:inputBindings>
+    </pd:activity>
+    <pd:activity name="NotAllowed">
+        <pd:type>com.tibco.plugin.http.HTTPResponseActivity</pd:type>
+        <pd:resourceType>httppalette.httpWebResponse</pd:resourceType>
+        <pd:x>332</pd:x>
+        <pd:y>317</pd:y>
+        <config>
+            <closeConnection>true</closeConnection>
+            <eventSource>HandleConversionRequest</eventSource>
+            <Headers>
+                <xsd:element name="root">
+                    <xsd:complexType>
+                        <xsd:sequence>
+                            <xsd:element name="StatusLine" type="xsd:string" minOccurs="0"/>
+                            <xsd:element name="Content-Type" type="xsd:string" minOccurs="0"/>
+                            <xsd:element name="Set-Cookie" type="xsd:string" minOccurs="0"/>
+                            <xsd:element name="Pragma" type="xsd:string" minOccurs="0"/>
+                            <xsd:element name="Location" type="xsd:string" minOccurs="0"/>
+                        </xsd:sequence>
+                    </xsd:complexType>
+                </xsd:element>
+            </Headers>
+        </config>
+        <pd:inputBindings>
+            <ResponseActivityInput>
+                <asciiContent>
+                    <xsl:value-of select="&quot;not allowed&quot;"/>
+                </asciiContent>
+            </ResponseActivityInput>
+        </pd:inputBindings>
+    </pd:activity>
+    <pd:transition>
+        <pd:from>HandleConversionRequest</pd:from>
+        <pd:to>TimeLog</pd:to>
+        <pd:lineType>Default</pd:lineType>
+        <pd:lineColor>-16777216</pd:lineColor>
+        <pd:conditionType>xpath</pd:conditionType>
+        <pd:xpath>contains($HandleConversionRequest/ProcessStarterOutput/RequestURI, "/conversion?")</pd:xpath>
+    </pd:transition>
+    <pd:transition>
+        <pd:from>ValidateClickID</pd:from>
+        <pd:to>SetErrorResponse-0</pd:to>
+        <pd:lineType>Default</pd:lineType>
+        <pd:lineColor>-16777216</pd:lineColor>
+        <pd:conditionType>xpath</pd:conditionType>
+        <pd:xpath>contains($ValidateClickID/javaCodeActivityOutput/responseStatus, "error")</pd:xpath>
+    </pd:transition>
+    <pd:transition>
+        <pd:from>ValidateClickID</pd:from>
+        <pd:to>Get_CampPl_Rm</pd:to>
+        <pd:lineType>Default</pd:lineType>
+        <pd:lineColor>-16777216</pd:lineColor>
+        <pd:conditionType>otherwise</pd:conditionType>
+    </pd:transition>
+    <pd:transition>
+        <pd:from>Get_CampPl_Rm</pd:from>
+        <pd:to>SuccessResponse</pd:to>
+        <pd:lineType>Default</pd:lineType>
+        <pd:lineColor>-16777216</pd:lineColor>
+        <pd:conditionType>otherwise</pd:conditionType>
+    </pd:transition>
+    <pd:transition>
+        <pd:from>SuccessResponse</pd:from>
+        <pd:to>SendTo_ConversionDupQueue</pd:to>
+        <pd:lineType>Default</pd:lineType>
+        <pd:lineColor>-16777216</pd:lineColor>
+        <pd:conditionType>always</pd:conditionType>
+    </pd:transition>
+    <pd:transition>
+        <pd:from>Catch</pd:from>
+        <pd:to>ErrorHandle</pd:to>
+        <pd:lineType>Default</pd:lineType>
+        <pd:lineColor>-16777216</pd:lineColor>
+        <pd:conditionType>always</pd:conditionType>
+    </pd:transition>
+    <pd:transition>
+        <pd:description>campaign_pl is empty</pd:description>
+        <pd:from>Get_CampPl_Rm</pd:from>
+        <pd:to>CheckNTableForN_Pl</pd:to>
+        <pd:xpathDescription>CampPL Is Empty</pd:xpathDescription>
+        <pd:lineType>Default</pd:lineType>
+        <pd:lineColor>-16777216</pd:lineColor>
+        <pd:conditionType>xpath</pd:conditionType>
+        <pd:xpath>$Get_CampPl_Rm/jdbcGeneralActivityOutput/unknownResultset[1]/row[1]/column[1]/value=""</pd:xpath>
+    </pd:transition>
+    <pd:transition>
+        <pd:from>CheckNTableForN_Pl</pd:from>
+        <pd:to>Replace_campaign_pl</pd:to>
+        <pd:lineType>Default</pd:lineType>
+        <pd:lineColor>-16777216</pd:lineColor>
+        <pd:conditionType>always</pd:conditionType>
+    </pd:transition>
+    <pd:transition>
+        <pd:from>Replace_campaign_pl</pd:from>
+        <pd:to>SuccessResponse</pd:to>
+        <pd:lineType>Default</pd:lineType>
+        <pd:lineColor>-16777216</pd:lineColor>
+        <pd:conditionType>always</pd:conditionType>
+    </pd:transition>
+    <pd:transition>
+        <pd:description>campaign_id does not exist</pd:description>
+        <pd:from>Get_CampPl_Rm</pd:from>
+        <pd:to>SetErrorResponse</pd:to>
+        <pd:xpathDescription>NoSuchCampId</pd:xpathDescription>
+        <pd:lineType>Default</pd:lineType>
+        <pd:lineColor>-16777216</pd:lineColor>
+        <pd:conditionType>xpath</pd:conditionType>
+        <pd:xpath>$Get_CampPl_Rm/jdbcGeneralActivityOutput/unknownResultset[1]/row[1]/column[3]/value=""</pd:xpath>
+    </pd:transition>
+    <pd:transition>
+        <pd:from>SetErrorResponse</pd:from>
+        <pd:to>GetErrorResponse</pd:to>
+        <pd:lineType>Default</pd:lineType>
+        <pd:lineColor>-16777216</pd:lineColor>
+        <pd:conditionType>always</pd:conditionType>
+    </pd:transition>
+    <pd:transition>
+        <pd:from>SetErrorResponse-0</pd:from>
+        <pd:to>GetErrorResponse</pd:to>
+        <pd:lineType>Default</pd:lineType>
+        <pd:lineColor>-16777216</pd:lineColor>
+        <pd:conditionType>always</pd:conditionType>
+    </pd:transition>
+    <pd:transition>
+        <pd:from>GetErrorResponse</pd:from>
+        <pd:to>ErrorResponse</pd:to>
+        <pd:lineType>Default</pd:lineType>
+        <pd:lineColor>-16777216</pd:lineColor>
+        <pd:conditionType>always</pd:conditionType>
+    </pd:transition>
+    <pd:transition>
+        <pd:from>ErrorResponse</pd:from>
+        <pd:to>TimeLogEnd</pd:to>
+        <pd:lineType>Default</pd:lineType>
+        <pd:lineColor>-16777216</pd:lineColor>
+        <pd:conditionType>always</pd:conditionType>
+    </pd:transition>
+    <pd:transition>
+        <pd:from>SendTo_ConversionDupQueue</pd:from>
+        <pd:to>TimeLogEnd</pd:to>
+        <pd:lineType>Default</pd:lineType>
+        <pd:lineColor>-16777216</pd:lineColor>
+        <pd:conditionType>always</pd:conditionType>
+    </pd:transition>
+    <pd:transition>
+        <pd:from>TimeLog</pd:from>
+        <pd:to>ValidateClickID</pd:to>
+        <pd:lineType>Default</pd:lineType>
+        <pd:lineColor>-16777216</pd:lineColor>
+        <pd:conditionType>always</pd:conditionType>
+    </pd:transition>
+    <pd:transition>
+        <pd:from>TimeLogEnd</pd:from>
+        <pd:to>End</pd:to>
+        <pd:lineType>Default</pd:lineType>
+        <pd:lineColor>-16777216</pd:lineColor>
+        <pd:conditionType>always</pd:conditionType>
+    </pd:transition>
+    <pd:transition>
+        <pd:from>ErrorHandle</pd:from>
+        <pd:to>SendAlertEmail</pd:to>
+        <pd:lineType>Default</pd:lineType>
+        <pd:lineColor>-16777216</pd:lineColor>
+        <pd:conditionType>always</pd:conditionType>
+    </pd:transition>
+    <pd:transition>
+        <pd:from>TimeLogEndError</pd:from>
+        <pd:to>End</pd:to>
+        <pd:lineType>Default</pd:lineType>
+        <pd:lineColor>-16777216</pd:lineColor>
+        <pd:conditionType>always</pd:conditionType>
+    </pd:transition>
+    <pd:transition>
+        <pd:from>SendAlertEmail</pd:from>
+        <pd:to>TimeLogEndError</pd:to>
+        <pd:lineType>Default</pd:lineType>
+        <pd:lineColor>-16777216</pd:lineColor>
+        <pd:conditionType>always</pd:conditionType>
+    </pd:transition>
+    <pd:transition>
+        <pd:from>HandleConversionRequest</pd:from>
+        <pd:to>NotAllowed</pd:to>
+        <pd:lineType>Default</pd:lineType>
+        <pd:lineColor>-16777216</pd:lineColor>
+        <pd:conditionType>otherwise</pd:conditionType>
+    </pd:transition>
+    <pd:transition>
+        <pd:from>NotAllowed</pd:from>
+        <pd:to>End</pd:to>
+        <pd:lineType>Default</pd:lineType>
+        <pd:lineColor>-16777216</pd:lineColor>
+        <pd:conditionType>always</pd:conditionType>
+    </pd:transition>
+</pd:ProcessDefinition>

@@ -1,0 +1,223 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<pd:ProcessDefinition xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:pd="http://xmlns.tibco.com/bw/process/2003" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+    <pd:name>Level2Server/SyncWithoutBlank.process</pd:name>
+    <pd:startName>Start</pd:startName>
+    <pd:startType>
+        <xsd:element name="RequestActivityInput">
+            <xsd:complexType>
+                <xsd:sequence>
+                    <xsd:element name="Host" type="xsd:string" minOccurs="0"/>
+                    <xsd:element name="RequestURI" type="xsd:string" minOccurs="0"/>
+                    <xsd:element name="QueryString" type="xsd:string" minOccurs="0"/>
+                    <xsd:element name="Timeout" type="xsd:string" minOccurs="0"/>
+                </xsd:sequence>
+            </xsd:complexType>
+        </xsd:element>
+    </pd:startType>
+    <pd:startX>49</pd:startX>
+    <pd:startY>55</pd:startY>
+    <pd:returnBindings>
+        <root>
+            <xsl:if test="$SyncWithoutBlank/RequestActivityOutput/Headers/Location">
+                <SyncResponseLocation>
+                    <xsl:value-of select="$SyncWithoutBlank/RequestActivityOutput/Headers/Location"/>
+                </SyncResponseLocation>
+            </xsl:if>
+        </root>
+    </pd:returnBindings>
+    <pd:endName>End</pd:endName>
+    <pd:endType>
+        <xsd:element name="root">
+            <xsd:complexType>
+                <xsd:sequence>
+                    <xsd:element name="SyncResponseLocation" type="xsd:string" minOccurs="0"/>
+                </xsd:sequence>
+            </xsd:complexType>
+        </xsd:element>
+    </pd:endType>
+    <pd:endX>450</pd:endX>
+    <pd:endY>64</pd:endY>
+    <pd:errorSchemas/>
+    <pd:processVariables/>
+    <pd:targetNamespace>http://xmlns.example.com/1491793335306</pd:targetNamespace>
+    <pd:activity name="SyncWithoutBlank">
+        <pd:type>com.tibco.plugin.http.client.HttpRequestActivity</pd:type>
+        <pd:resourceType>httppalette.httpRequest</pd:resourceType>
+        <pd:x>298</pd:x>
+        <pd:y>59</pd:y>
+        <config>
+            <inputOutputVersion>5.3.0</inputOutputVersion>
+            <newMimeSupport>true</newMimeSupport>
+            <authScheme>NONE</authScheme>
+            <InputHeaders>
+                <xsd:element name="root">
+                    <xsd:complexType>
+                        <xsd:sequence>
+                            <xsd:element name="Accept" type="xsd:string" minOccurs="0"/>
+                            <xsd:element name="Accept-Charset" type="xsd:string" minOccurs="0"/>
+                            <xsd:element name="Accept-Encoding" type="xsd:string" minOccurs="0"/>
+                            <xsd:element name="Content-Type" type="xsd:string" minOccurs="0"/>
+                            <xsd:element name="Cookie" type="xsd:string" minOccurs="0" maxOccurs="unbounded"/>
+                            <xsd:element name="Pragma" type="xsd:string" minOccurs="0" maxOccurs="unbounded"/>
+                        </xsd:sequence>
+                    </xsd:complexType>
+                </xsd:element>
+            </InputHeaders>
+            <OutputHeaders>
+                <xsd:element name="root">
+                    <xsd:complexType>
+                        <xsd:sequence>
+                            <xsd:element name="Allow" type="xsd:string" minOccurs="0"/>
+                            <xsd:element name="Content-Type" type="xsd:string" minOccurs="0"/>
+                            <xsd:element name="Content-Length" type="xsd:string" minOccurs="0"/>
+                            <xsd:element name="Content-Encoding" type="xsd:string" minOccurs="0"/>
+                            <xsd:element name="Date" type="xsd:string" minOccurs="0"/>
+                            <xsd:element name="Location" type="xsd:string" minOccurs="0"/>
+                            <xsd:element name="Set-Cookie" type="xsd:string" minOccurs="0" maxOccurs="unbounded"/>
+                            <xsd:element name="Pragma" type="xsd:string" minOccurs="0" maxOccurs="unbounded"/>
+                        </xsd:sequence>
+                    </xsd:complexType>
+                </xsd:element>
+            </OutputHeaders>
+        </config>
+        <pd:inputBindings>
+            <RequestActivityInput>
+                <xsl:if test="$Start/RequestActivityInput/Host">
+                    <Host>
+                        <xsl:value-of select="$Start/RequestActivityInput/Host"/>
+                    </Host>
+                </xsl:if>
+                <xsl:if test="$Start/RequestActivityInput/RequestURI">
+                    <RequestURI>
+                        <xsl:value-of select="$Start/RequestActivityInput/RequestURI"/>
+                    </RequestURI>
+                </xsl:if>
+                <QueryString>
+                    <xsl:value-of select="$replaceBlankInUrl/javaCodeActivityOutput/noBlank_queryString"/>
+                </QueryString>
+                <xsl:if test="$Start/RequestActivityInput/Timeout">
+                    <Timeout>
+                        <xsl:value-of select="$Start/RequestActivityInput/Timeout"/>
+                    </Timeout>
+                </xsl:if>
+            </RequestActivityInput>
+        </pd:inputBindings>
+    </pd:activity>
+    <pd:activity name="replaceBlankInUrl">
+        <pd:type>com.tibco.plugin.java.JavaActivity</pd:type>
+        <pd:resourceType>ae.javapalette.javaActivity</pd:resourceType>
+        <pd:x>152</pd:x>
+        <pd:y>59</pd:y>
+        <config>
+            <fileName>SyncWithoutBlankreplaceBlankInUrl</fileName>
+            <packageName>Level2Server.SyncWithoutBlank</packageName>
+            <fullsource>package Level2Server.SyncWithoutBlank;
+import java.util.*;
+import java.io.*;
+public class SyncWithoutBlankreplaceBlankInUrl{
+/****** START SET/GET METHOD, DO NOT MODIFY *****/
+	protected String queryString = "";
+	protected String noBlank_queryString = "";
+	public String getqueryString() {
+		return queryString;
+	}
+	public void setqueryString(String val) {
+		queryString = val;
+	}
+	public String getnoBlank_queryString() {
+		return noBlank_queryString;
+	}
+	public void setnoBlank_queryString(String val) {
+		noBlank_queryString = val;
+	}
+/****** END SET/GET METHOD, DO NOT MODIFY *****/
+	public SyncWithoutBlankreplaceBlankInUrl() {
+	}
+	public void invoke() throws Exception {
+/* Available Variables: DO NOT MODIFY
+	In  : String queryString
+	Out : String noBlank_queryString
+* Available Variables: DO NOT MODIFY *****/
+
+noBlank_queryString=queryString.replaceAll(" ","%20");}
+}
+</fullsource>
+            <inputData>
+                <row>
+                    <fieldName>queryString</fieldName>
+                    <fieldType>string</fieldType>
+                    <fieldRequired>optional</fieldRequired>
+                </row>
+            </inputData>
+            <outputData>
+                <row>
+                    <fieldName>noBlank_queryString</fieldName>
+                    <fieldType>string</fieldType>
+                    <fieldRequired>optional</fieldRequired>
+                </row>
+            </outputData>
+            <byteCode>
+                <class>
+                    <name>SyncWithoutBlankreplaceBlankInUrl</name>
+                    <byteCode>yv66vgAAADQAKgkACAAcCQAIAB0KAAkAHggAHwgAIAgAIQoAIgAjBwAkBwAlAQALcXVlcnlTdHJpbmcBABJMamF2YS9sYW5nL1N0cmluZzsBABNub0JsYW5rX3F1ZXJ5U3RyaW5nAQAOZ2V0cXVlcnlTdHJpbmcBABQoKUxqYXZhL2xhbmcvU3RyaW5nOwEABENvZGUBAA9MaW5lTnVtYmVyVGFibGUBAA5zZXRxdWVyeVN0cmluZwEAFShMamF2YS9sYW5nL1N0cmluZzspVgEAFmdldG5vQmxhbmtfcXVlcnlTdHJpbmcBABZzZXRub0JsYW5rX3F1ZXJ5U3RyaW5nAQAGPGluaXQ+AQADKClWAQAGaW52b2tlAQAKRXhjZXB0aW9ucwcAJgEAClNvdXJjZUZpbGUBACZTeW5jV2l0aG91dEJsYW5rcmVwbGFjZUJsYW5rSW5VcmwuamF2YQwACgALDAAMAAsMABUAFgEAAAEAASABAAMlMjAHACcMACgAKQEAP0xldmVsMlNlcnZlci9TeW5jV2l0aG91dEJsYW5rL1N5bmNXaXRob3V0QmxhbmtyZXBsYWNlQmxhbmtJblVybAEAEGphdmEvbGFuZy9PYmplY3QBABNqYXZhL2xhbmcvRXhjZXB0aW9uAQAQamF2YS9sYW5nL1N0cmluZwEACnJlcGxhY2VBbGwBADgoTGphdmEvbGFuZy9TdHJpbmc7TGphdmEvbGFuZy9TdHJpbmc7KUxqYXZhL2xhbmcvU3RyaW5nOwAhAAgACQAAAAIABAAKAAsAAAAEAAwACwAAAAYAAQANAA4AAQAPAAAAHQABAAEAAAAFKrQAAbAAAAABABAAAAAGAAEAAAAJAAEAEQASAAEADwAAACIAAgACAAAABiortQABsQAAAAEAEAAAAAoAAgAAAAwABQANAAEAEwAOAAEADwAAAB0AAQABAAAABSq0AAKwAAAAAQAQAAAABgABAAAADwABABQAEgABAA8AAAAiAAIAAgAAAAYqK7UAArEAAAABABAAAAAKAAIAAAASAAUAEwABABUAFgABAA8AAAA1AAIAAQAAABEqtwADKhIEtQABKhIEtQACsQAAAAEAEAAAABIABAAAABUABAAGAAoABwAQABYAAQAXABYAAgAPAAAAKAAEAAEAAAAQKiq0AAESBRIGtgAHtQACsQAAAAEAEAAAAAYAAQAAAB0AGAAAAAQAAQAZAAEAGgAAAAIAGw==</byteCode>
+                </class>
+            </byteCode>
+        </config>
+        <pd:inputBindings>
+            <javaCodeActivityInput>
+                <xsl:if test="$Start/RequestActivityInput/QueryString">
+                    <queryString>
+                        <xsl:value-of select="$Start/RequestActivityInput/QueryString"/>
+                    </queryString>
+                </xsl:if>
+            </javaCodeActivityInput>
+        </pd:inputBindings>
+    </pd:activity>
+    <pd:activity name="Catch">
+        <pd:type>com.tibco.pe.core.CatchActivity</pd:type>
+        <pd:resourceType>ae.activities.catch</pd:resourceType>
+        <pd:x>140</pd:x>
+        <pd:y>147</pd:y>
+        <pd:handler>true</pd:handler>
+        <config>
+            <catchAll>true</catchAll>
+        </config>
+        <pd:inputBindings/>
+    </pd:activity>
+    <pd:activity name="Rethrow">
+        <pd:type>com.tibco.pe.core.RethrowActivity</pd:type>
+        <pd:resourceType>ae.activities.rethrow</pd:resourceType>
+        <pd:x>296</pd:x>
+        <pd:y>148</pd:y>
+        <config/>
+        <pd:inputBindings/>
+    </pd:activity>
+    <pd:transition>
+        <pd:from>Start</pd:from>
+        <pd:to>replaceBlankInUrl</pd:to>
+        <pd:lineType>Default</pd:lineType>
+        <pd:lineColor>-16777216</pd:lineColor>
+        <pd:conditionType>always</pd:conditionType>
+    </pd:transition>
+    <pd:transition>
+        <pd:from>SyncWithoutBlank</pd:from>
+        <pd:to>End</pd:to>
+        <pd:lineType>Default</pd:lineType>
+        <pd:lineColor>-16777216</pd:lineColor>
+        <pd:conditionType>always</pd:conditionType>
+    </pd:transition>
+    <pd:transition>
+        <pd:from>replaceBlankInUrl</pd:from>
+        <pd:to>SyncWithoutBlank</pd:to>
+        <pd:lineType>Default</pd:lineType>
+        <pd:lineColor>-16777216</pd:lineColor>
+        <pd:conditionType>always</pd:conditionType>
+    </pd:transition>
+    <pd:transition>
+        <pd:from>Catch</pd:from>
+        <pd:to>Rethrow</pd:to>
+        <pd:lineType>Default</pd:lineType>
+        <pd:lineColor>-16777216</pd:lineColor>
+        <pd:conditionType>always</pd:conditionType>
+    </pd:transition>
+</pd:ProcessDefinition>

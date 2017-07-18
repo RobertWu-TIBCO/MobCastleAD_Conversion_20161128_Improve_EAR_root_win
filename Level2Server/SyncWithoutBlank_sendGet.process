@@ -1,0 +1,382 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<pd:ProcessDefinition xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:pd="http://xmlns.tibco.com/bw/process/2003" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+    <pd:name>Level2Server/SyncWithoutBlank_sendGet.process</pd:name>
+    <pd:startName>Start</pd:startName>
+    <pd:startType>
+        <xsd:element name="RequestActivityInput">
+            <xsd:complexType>
+                <xsd:sequence>
+                    <xsd:element name="Host" type="xsd:string" minOccurs="0"/>
+                    <xsd:element name="RequestURI" type="xsd:string" minOccurs="0"/>
+                    <xsd:element name="QueryString" type="xsd:string" minOccurs="0"/>
+                    <xsd:element name="Timeout" type="xsd:string" minOccurs="0"/>
+                    <xsd:element name="fullUrl" type="xsd:string" minOccurs="0"/>
+                </xsd:sequence>
+            </xsd:complexType>
+        </xsd:element>
+    </pd:startType>
+    <pd:startX>49</pd:startX>
+    <pd:startY>55</pd:startY>
+    <pd:returnBindings>
+        <root>
+            <xsl:if test="$SyncWithoutBlank/RequestActivityOutput/Headers/Location">
+                <SyncResponseLocation>
+                    <xsl:value-of select="$SyncWithoutBlank/RequestActivityOutput/Headers/Location"/>
+                </SyncResponseLocation>
+            </xsl:if>
+            <ascii>
+                <xsl:value-of select="concat(&#xA;$SyncWithoutBlank/RequestActivityOutput/asciiContent,&#xA;$KeepEmptyParam/javaCodeActivityOutput/responsestr&#xA;)"/>
+            </ascii>
+        </root>
+    </pd:returnBindings>
+    <pd:endName>End</pd:endName>
+    <pd:endType>
+        <xsd:element name="root">
+            <xsd:complexType>
+                <xsd:sequence>
+                    <xsd:element name="SyncResponseLocation" type="xsd:string" minOccurs="0"/>
+                    <xsd:element name="ascii" type="xsd:string" minOccurs="0"/>
+                </xsd:sequence>
+            </xsd:complexType>
+        </xsd:element>
+    </pd:endType>
+    <pd:endX>450</pd:endX>
+    <pd:endY>64</pd:endY>
+    <pd:errorSchemas/>
+    <pd:processVariables/>
+    <pd:targetNamespace>http://xmlns.example.com/1491793335306</pd:targetNamespace>
+    <pd:activity name="SyncWithoutBlank">
+        <pd:type>com.tibco.plugin.http.client.HttpRequestActivity</pd:type>
+        <pd:resourceType>httppalette.httpRequest</pd:resourceType>
+        <pd:x>298</pd:x>
+        <pd:y>59</pd:y>
+        <config>
+            <inputOutputVersion>5.3.0</inputOutputVersion>
+            <newMimeSupport>true</newMimeSupport>
+            <authScheme>NONE</authScheme>
+            <InputHeaders>
+                <xsd:element name="root">
+                    <xsd:complexType>
+                        <xsd:sequence>
+                            <xsd:element name="Accept" type="xsd:string" minOccurs="0"/>
+                            <xsd:element name="Accept-Charset" type="xsd:string" minOccurs="0"/>
+                            <xsd:element name="Accept-Encoding" type="xsd:string" minOccurs="0"/>
+                            <xsd:element name="Content-Type" type="xsd:string" minOccurs="0"/>
+                            <xsd:element name="Cookie" type="xsd:string" minOccurs="0" maxOccurs="unbounded"/>
+                            <xsd:element name="Pragma" type="xsd:string" minOccurs="0" maxOccurs="unbounded"/>
+                        </xsd:sequence>
+                    </xsd:complexType>
+                </xsd:element>
+            </InputHeaders>
+            <OutputHeaders>
+                <xsd:element name="root">
+                    <xsd:complexType>
+                        <xsd:sequence>
+                            <xsd:element name="Allow" type="xsd:string" minOccurs="0"/>
+                            <xsd:element name="Content-Type" type="xsd:string" minOccurs="0"/>
+                            <xsd:element name="Content-Length" type="xsd:string" minOccurs="0"/>
+                            <xsd:element name="Content-Encoding" type="xsd:string" minOccurs="0"/>
+                            <xsd:element name="Date" type="xsd:string" minOccurs="0"/>
+                            <xsd:element name="Location" type="xsd:string" minOccurs="0"/>
+                            <xsd:element name="Set-Cookie" type="xsd:string" minOccurs="0" maxOccurs="unbounded"/>
+                            <xsd:element name="Pragma" type="xsd:string" minOccurs="0" maxOccurs="unbounded"/>
+                        </xsd:sequence>
+                    </xsd:complexType>
+                </xsd:element>
+            </OutputHeaders>
+        </config>
+        <pd:inputBindings>
+            <RequestActivityInput>
+                <xsl:if test="$Start/RequestActivityInput/Host">
+                    <Host>
+                        <xsl:value-of select="$Start/RequestActivityInput/Host"/>
+                    </Host>
+                </xsl:if>
+                <xsl:if test="$Start/RequestActivityInput/RequestURI">
+                    <RequestURI>
+                        <xsl:value-of select="$Start/RequestActivityInput/RequestURI"/>
+                    </RequestURI>
+                </xsl:if>
+                <xsl:choose>
+                    <xsl:when test="contains($Start/RequestActivityInput/QueryString,&quot;ca_n=mobcastle&amp;ca_s=app_tg&quot;)">
+                        <QueryString>
+                            <xsl:value-of select="$Start/RequestActivityInput/QueryString"/>
+                        </QueryString>
+                    </xsl:when>
+                    <xsl:otherwise>
+                        <QueryString>
+                            <xsl:value-of select="$replaceBlankInUrl/javaCodeActivityOutput/noBlank_queryString"/>
+                        </QueryString>
+                    </xsl:otherwise>
+                </xsl:choose>
+                <xsl:if test="$Start/RequestActivityInput/Timeout">
+                    <Timeout>
+                        <xsl:value-of select="$Start/RequestActivityInput/Timeout"/>
+                    </Timeout>
+                </xsl:if>
+            </RequestActivityInput>
+        </pd:inputBindings>
+    </pd:activity>
+    <pd:activity name="replaceBlankInUrl">
+        <pd:type>com.tibco.plugin.java.JavaActivity</pd:type>
+        <pd:resourceType>ae.javapalette.javaActivity</pd:resourceType>
+        <pd:x>152</pd:x>
+        <pd:y>59</pd:y>
+        <config>
+            <fileName>SyncWithoutBlank_sendGetreplaceBlankInUrl</fileName>
+            <packageName>Level2Server.SyncWithoutBlank_sendGet</packageName>
+            <fullsource>package Level2Server.SyncWithoutBlank_sendGet;
+import java.util.*;
+import java.io.*;
+public class SyncWithoutBlank_sendGetreplaceBlankInUrl{
+/****** START SET/GET METHOD, DO NOT MODIFY *****/
+	protected String queryString = "";
+	protected String noBlank_queryString = "";
+	public String getqueryString() {
+		return queryString;
+	}
+	public void setqueryString(String val) {
+		queryString = val;
+	}
+	public String getnoBlank_queryString() {
+		return noBlank_queryString;
+	}
+	public void setnoBlank_queryString(String val) {
+		noBlank_queryString = val;
+	}
+/****** END SET/GET METHOD, DO NOT MODIFY *****/
+	public SyncWithoutBlank_sendGetreplaceBlankInUrl() {
+	}
+	public void invoke() throws Exception {
+/* Available Variables: DO NOT MODIFY
+	In  : String queryString
+	Out : String noBlank_queryString
+* Available Variables: DO NOT MODIFY *****/
+
+noBlank_queryString=queryString.replaceAll(" ","%20");}
+}
+</fullsource>
+            <outputData>
+                <row>
+                    <fieldName>noBlank_queryString</fieldName>
+                    <fieldType>string</fieldType>
+                    <fieldRequired>optional</fieldRequired>
+                </row>
+            </outputData>
+            <inputData>
+                <row>
+                    <fieldName>queryString</fieldName>
+                    <fieldType>string</fieldType>
+                    <fieldRequired>optional</fieldRequired>
+                </row>
+            </inputData>
+            <byteCode>
+                <class>
+                    <name>SyncWithoutBlank_sendGetreplaceBlankInUrl</name>
+                    <byteCode>yv66vgAAADQAKgkACAAcCQAIAB0KAAkAHggAHwgAIAgAIQoAIgAjBwAkBwAlAQALcXVlcnlTdHJpbmcBABJMamF2YS9sYW5nL1N0cmluZzsBABNub0JsYW5rX3F1ZXJ5U3RyaW5nAQAOZ2V0cXVlcnlTdHJpbmcBABQoKUxqYXZhL2xhbmcvU3RyaW5nOwEABENvZGUBAA9MaW5lTnVtYmVyVGFibGUBAA5zZXRxdWVyeVN0cmluZwEAFShMamF2YS9sYW5nL1N0cmluZzspVgEAFmdldG5vQmxhbmtfcXVlcnlTdHJpbmcBABZzZXRub0JsYW5rX3F1ZXJ5U3RyaW5nAQAGPGluaXQ+AQADKClWAQAGaW52b2tlAQAKRXhjZXB0aW9ucwcAJgEAClNvdXJjZUZpbGUBAC5TeW5jV2l0aG91dEJsYW5rX3NlbmRHZXRyZXBsYWNlQmxhbmtJblVybC5qYXZhDAAKAAsMAAwACwwAFQAWAQAAAQABIAEAAyUyMAcAJwwAKAApAQBPTGV2ZWwyU2VydmVyL1N5bmNXaXRob3V0Qmxhbmtfc2VuZEdldC9TeW5jV2l0aG91dEJsYW5rX3NlbmRHZXRyZXBsYWNlQmxhbmtJblVybAEAEGphdmEvbGFuZy9PYmplY3QBABNqYXZhL2xhbmcvRXhjZXB0aW9uAQAQamF2YS9sYW5nL1N0cmluZwEACnJlcGxhY2VBbGwBADgoTGphdmEvbGFuZy9TdHJpbmc7TGphdmEvbGFuZy9TdHJpbmc7KUxqYXZhL2xhbmcvU3RyaW5nOwAhAAgACQAAAAIABAAKAAsAAAAEAAwACwAAAAYAAQANAA4AAQAPAAAAHQABAAEAAAAFKrQAAbAAAAABABAAAAAGAAEAAAAJAAEAEQASAAEADwAAACIAAgACAAAABiortQABsQAAAAEAEAAAAAoAAgAAAAwABQANAAEAEwAOAAEADwAAAB0AAQABAAAABSq0AAKwAAAAAQAQAAAABgABAAAADwABABQAEgABAA8AAAAiAAIAAgAAAAYqK7UAArEAAAABABAAAAAKAAIAAAASAAUAEwABABUAFgABAA8AAAA1AAIAAQAAABEqtwADKhIEtQABKhIEtQACsQAAAAEAEAAAABIABAAAABUABAAGAAoABwAQABYAAQAXABYAAgAPAAAAKAAEAAEAAAAQKiq0AAESBRIGtgAHtQACsQAAAAEAEAAAAAYAAQAAAB0AGAAAAAQAAQAZAAEAGgAAAAIAGw==</byteCode>
+                </class>
+            </byteCode>
+        </config>
+        <pd:inputBindings>
+            <javaCodeActivityInput>
+                <xsl:if test="$Start/RequestActivityInput/QueryString">
+                    <queryString>
+                        <xsl:value-of select="$Start/RequestActivityInput/QueryString"/>
+                    </queryString>
+                </xsl:if>
+            </javaCodeActivityInput>
+        </pd:inputBindings>
+    </pd:activity>
+    <pd:activity name="Catch">
+        <pd:type>com.tibco.pe.core.CatchActivity</pd:type>
+        <pd:resourceType>ae.activities.catch</pd:resourceType>
+        <pd:x>30</pd:x>
+        <pd:y>134</pd:y>
+        <pd:handler>true</pd:handler>
+        <config>
+            <catchAll>true</catchAll>
+        </config>
+        <pd:inputBindings/>
+    </pd:activity>
+    <pd:activity name="Rethrow">
+        <pd:type>com.tibco.pe.core.RethrowActivity</pd:type>
+        <pd:resourceType>ae.activities.rethrow</pd:resourceType>
+        <pd:x>148</pd:x>
+        <pd:y>199</pd:y>
+        <config/>
+        <pd:inputBindings/>
+    </pd:activity>
+    <pd:activity name="KeepEmptyParam">
+        <pd:type>com.tibco.plugin.java.JavaActivity</pd:type>
+        <pd:resourceType>ae.javapalette.javaActivity</pd:resourceType>
+        <pd:x>287</pd:x>
+        <pd:y>163</pd:y>
+        <config>
+            <fileName>SyncWithoutBlank_sendGetKeepEmptyParam</fileName>
+            <packageName>Level2Server.SyncWithoutBlank_sendGet</packageName>
+            <fullsource>package Level2Server.SyncWithoutBlank_sendGet;
+import java.util.*;
+import java.io.*;
+
+import java.io.BufferedReader;
+import java.io.DataOutputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+
+import javax.net.ssl.HttpsURLConnection;
+
+public class SyncWithoutBlank_sendGetKeepEmptyParam{
+/****** START SET/GET METHOD, DO NOT MODIFY *****/
+	protected String url = "";
+	protected String USER_AGENT = "";
+	protected String responsestr = "";
+	public String geturl() {
+		return url;
+	}
+	public void seturl(String val) {
+		url = val;
+	}
+	public String getUSER_AGENT() {
+		return USER_AGENT;
+	}
+	public void setUSER_AGENT(String val) {
+		USER_AGENT = val;
+	}
+	public String getresponsestr() {
+		return responsestr;
+	}
+	public void setresponsestr(String val) {
+		responsestr = val;
+	}
+/****** END SET/GET METHOD, DO NOT MODIFY *****/
+	public SyncWithoutBlank_sendGetKeepEmptyParam() {
+	}
+
+
+private String sendGet(String url) throws Exception {
+		
+        URL obj = new URL(url);
+        HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+
+        //默认值我GET
+        con.setRequestMethod("GET");
+
+        //添加请求头
+        con.setRequestProperty("User-Agent", USER_AGENT);
+
+        int responseCode = con.getResponseCode();
+        System.out.println("\nSending 'GET' request to URL : " + url);
+        System.out.println("Response Code : " + responseCode);
+
+        BufferedReader in = new BufferedReader(
+                new InputStreamReader(con.getInputStream()));
+        String inputLine;
+        StringBuffer response = new StringBuffer();
+
+        while ((inputLine = in.readLine()) != null) {
+            response.append(inputLine);
+        }
+        in.close();
+
+        //打印结果
+        System.out.println(response.toString());
+	return response.toString();
+    }
+
+	public void invoke() throws Exception {
+/* Available Variables: DO NOT MODIFY
+	In  : String url
+	In  : String USER_AGENT
+	Out : String responsestr
+* Available Variables: DO NOT MODIFY *****/
+
+responsestr=sendGet(url);}
+}
+</fullsource>
+            <inputData>
+                <row>
+                    <fieldName>url</fieldName>
+                    <fieldType>string</fieldType>
+                    <fieldRequired>optional</fieldRequired>
+                </row>
+                <row>
+                    <fieldName>USER_AGENT</fieldName>
+                    <fieldType>string</fieldType>
+                    <fieldRequired>optional</fieldRequired>
+                </row>
+            </inputData>
+            <outputData>
+                <row>
+                    <fieldName>responsestr</fieldName>
+                    <fieldType>string</fieldType>
+                    <fieldRequired>optional</fieldRequired>
+                </row>
+            </outputData>
+            <byteCode>
+                <class>
+                    <name>SyncWithoutBlank_sendGetKeepEmptyParam</name>
+                    <byteCode>yv66vgAAADQAgQkAJABECQAkAEUJACQARgoAJQBHCABIBwBJCgAGAEoKAAYASwcATAgATQoACQBOCABPCgAJAFAKAAkAUQkAUgBTBwBUCgAQAEcIAFUKABAAVgoAEABXCgBYAFkIAFoKABAAWwcAXAcAXQoACQBeCgAZAF8KABgAYAcAYQoAHQBHCgAYAGIKAB0AYwoAGABkCgAdAFcKACQAZQcAZgcAZwEAA3VybAEAEkxqYXZhL2xhbmcvU3RyaW5nOwEAClVTRVJfQUdFTlQBAAtyZXNwb25zZXN0cgEABmdldHVybAEAFCgpTGphdmEvbGFuZy9TdHJpbmc7AQAEQ29kZQEAD0xpbmVOdW1iZXJUYWJsZQEABnNldHVybAEAFShMamF2YS9sYW5nL1N0cmluZzspVgEADWdldFVTRVJfQUdFTlQBAA1zZXRVU0VSX0FHRU5UAQAOZ2V0cmVzcG9uc2VzdHIBAA5zZXRyZXNwb25zZXN0cgEABjxpbml0PgEAAygpVgEAB3NlbmRHZXQBACYoTGphdmEvbGFuZy9TdHJpbmc7KUxqYXZhL2xhbmcvU3RyaW5nOwEADVN0YWNrTWFwVGFibGUHAGYHAGgHAEkHAEwHAFwHAGEBAApFeGNlcHRpb25zBwBpAQAGaW52b2tlAQAKU291cmNlRmlsZQEAK1N5bmNXaXRob3V0Qmxhbmtfc2VuZEdldEtlZXBFbXB0eVBhcmFtLmphdmEMACYAJwwAKAAnDAApACcMADQANQEAAAEADGphdmEvbmV0L1VSTAwANAAvDABqAGsBABpqYXZhL25ldC9IdHRwVVJMQ29ubmVjdGlvbgEAA0dFVAwAbAAvAQAKVXNlci1BZ2VudAwAbQBuDABvAHAHAHEMAHIAcwEAF2phdmEvbGFuZy9TdHJpbmdCdWlsZGVyAQAgClNlbmRpbmcgJ0dFVCcgcmVxdWVzdCB0byBVUkwgOiAMAHQAdQwAdgArBwB3DAB4AC8BABBSZXNwb25zZSBDb2RlIDogDAB0AHkBABZqYXZhL2lvL0J1ZmZlcmVkUmVhZGVyAQAZamF2YS9pby9JbnB1dFN0cmVhbVJlYWRlcgwAegB7DAA0AHwMADQAfQEAFmphdmEvbGFuZy9TdHJpbmdCdWZmZXIMAH4AKwwAdAB/DACAADUMADYANwEATExldmVsMlNlcnZlci9TeW5jV2l0aG91dEJsYW5rX3NlbmRHZXQvU3luY1dpdGhvdXRCbGFua19zZW5kR2V0S2VlcEVtcHR5UGFyYW0BABBqYXZhL2xhbmcvT2JqZWN0AQAQamF2YS9sYW5nL1N0cmluZwEAE2phdmEvbGFuZy9FeGNlcHRpb24BAA5vcGVuQ29ubmVjdGlvbgEAGigpTGphdmEvbmV0L1VSTENvbm5lY3Rpb247AQAQc2V0UmVxdWVzdE1ldGhvZAEAEnNldFJlcXVlc3RQcm9wZXJ0eQEAJyhMamF2YS9sYW5nL1N0cmluZztMamF2YS9sYW5nL1N0cmluZzspVgEAD2dldFJlc3BvbnNlQ29kZQEAAygpSQEAEGphdmEvbGFuZy9TeXN0ZW0BAANvdXQBABVMamF2YS9pby9QcmludFN0cmVhbTsBAAZhcHBlbmQBAC0oTGphdmEvbGFuZy9TdHJpbmc7KUxqYXZhL2xhbmcvU3RyaW5nQnVpbGRlcjsBAAh0b1N0cmluZwEAE2phdmEvaW8vUHJpbnRTdHJlYW0BAAdwcmludGxuAQAcKEkpTGphdmEvbGFuZy9TdHJpbmdCdWlsZGVyOwEADmdldElucHV0U3RyZWFtAQAXKClMamF2YS9pby9JbnB1dFN0cmVhbTsBABgoTGphdmEvaW8vSW5wdXRTdHJlYW07KVYBABMoTGphdmEvaW8vUmVhZGVyOylWAQAIcmVhZExpbmUBACwoTGphdmEvbGFuZy9TdHJpbmc7KUxqYXZhL2xhbmcvU3RyaW5nQnVmZmVyOwEABWNsb3NlACEAJAAlAAAAAwAEACYAJwAAAAQAKAAnAAAABAApACcAAAAJAAEAKgArAAEALAAAAB0AAQABAAAABSq0AAGwAAAAAQAtAAAABgABAAAAEwABAC4ALwABACwAAAAiAAIAAgAAAAYqK7UAAbEAAAABAC0AAAAKAAIAAAAWAAUAFwABADAAKwABACwAAAAdAAEAAQAAAAUqtAACsAAAAAEALQAAAAYAAQAAABkAAQAxAC8AAQAsAAAAIgACAAIAAAAGKiu1AAKxAAAAAQAtAAAACgACAAAAHAAFAB0AAQAyACsAAQAsAAAAHQABAAEAAAAFKrQAA7AAAAABAC0AAAAGAAEAAAAfAAEAMwAvAAEALAAAACIAAgACAAAABiortQADsQAAAAEALQAAAAoAAgAAACIABQAjAAEANAA1AAEALAAAAD8AAgABAAAAFyq3AAQqEgW1AAEqEgW1AAIqEgW1AAOxAAAAAQAtAAAAFgAFAAAAJQAEAA8ACgAQABAAEQAWACYAAgA2ADcAAgAsAAABMwAFAAgAAACjuwAGWSu3AAdNLLYACMAACU4tEgq2AAstEgwqtAACtgANLbYADjYEsgAPuwAQWbcAERIStgATK7YAE7YAFLYAFbIAD7sAEFm3ABESFrYAExUEtgAXtgAUtgAVuwAYWbsAGVkttgAatwAbtwAcOgW7AB1ZtwAeOgcZBbYAH1k6BsYADhkHGQa2ACBXp//tGQW2ACGyAA8ZB7YAIrYAFRkHtgAisAAAAAIALQAAAD4ADwAAACsACQAsABEALwAXADIAIQA0ACcANQBAADYAWgA4AGMAOQBuADsAdwA9AIIAPgCNAEAAkgBDAJ0ARAA4AAAAOgAC/wB3AAgHADkHADoHADsHADwBBwA9AAcAPgAA/wAVAAgHADkHADoHADsHADwBBwA9BwA6BwA+AAAAPwAAAAQAAQBAAAEAQQA1AAIALAAAACUAAwABAAAADSoqKrQAAbcAI7UAA7EAAAABAC0AAAAGAAEAAABOAD8AAAAEAAEAQAABAEIAAAACAEM=</byteCode>
+                </class>
+            </byteCode>
+        </config>
+        <pd:inputBindings>
+            <javaCodeActivityInput>
+                <xsl:if test="$Start/RequestActivityInput/fullUrl">
+                    <url>
+                        <xsl:value-of select="$Start/RequestActivityInput/fullUrl"/>
+                    </url>
+                </xsl:if>
+                <USER_AGENT>
+                    <xsl:value-of select="&quot;Mozilla/5.0&quot;"/>
+                </USER_AGENT>
+            </javaCodeActivityInput>
+        </pd:inputBindings>
+    </pd:activity>
+    <pd:transition>
+        <pd:from>Start</pd:from>
+        <pd:to>replaceBlankInUrl</pd:to>
+        <pd:lineType>Default</pd:lineType>
+        <pd:lineColor>-16777216</pd:lineColor>
+        <pd:conditionType>always</pd:conditionType>
+    </pd:transition>
+    <pd:transition>
+        <pd:from>SyncWithoutBlank</pd:from>
+        <pd:to>End</pd:to>
+        <pd:lineType>Default</pd:lineType>
+        <pd:lineColor>-16777216</pd:lineColor>
+        <pd:conditionType>always</pd:conditionType>
+    </pd:transition>
+    <pd:transition>
+        <pd:from>replaceBlankInUrl</pd:from>
+        <pd:to>SyncWithoutBlank</pd:to>
+        <pd:lineType>Default</pd:lineType>
+        <pd:lineColor>-16777216</pd:lineColor>
+        <pd:conditionType>otherwise</pd:conditionType>
+    </pd:transition>
+    <pd:transition>
+        <pd:from>Catch</pd:from>
+        <pd:to>Rethrow</pd:to>
+        <pd:lineType>Default</pd:lineType>
+        <pd:lineColor>-16777216</pd:lineColor>
+        <pd:conditionType>always</pd:conditionType>
+    </pd:transition>
+    <pd:transition>
+        <pd:from>replaceBlankInUrl</pd:from>
+        <pd:to>KeepEmptyParam</pd:to>
+        <pd:xpathDescription>guazi</pd:xpathDescription>
+        <pd:lineType>Default</pd:lineType>
+        <pd:lineColor>-16777216</pd:lineColor>
+        <pd:conditionType>xpath</pd:conditionType>
+        <pd:xpath>contains($Start/RequestActivityInput/QueryString,"ca_n=mobcastleios&amp;ca_s=app_tg")
+or
+(not (contains($Start/RequestActivityInput/fullUrl, "?")))</pd:xpath>
+    </pd:transition>
+    <pd:transition>
+        <pd:from>KeepEmptyParam</pd:from>
+        <pd:to>End</pd:to>
+        <pd:lineType>Default</pd:lineType>
+        <pd:lineColor>-16777216</pd:lineColor>
+        <pd:conditionType>always</pd:conditionType>
+    </pd:transition>
+</pd:ProcessDefinition>

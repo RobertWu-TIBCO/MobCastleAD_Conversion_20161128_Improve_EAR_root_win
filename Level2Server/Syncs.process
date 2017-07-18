@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<pd:ProcessDefinition xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:pd="http://xmlns.tibco.com/bw/process/2003" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+    <pd:name>Level2Server/Syncs.process</pd:name>
+    <pd:startName>Start</pd:startName>
+    <pd:startType>
+        <xsd:element name="root">
+            <xsd:complexType>
+                <xsd:sequence>
+                    <xsd:element name="requesturl" type="xsd:string" minOccurs="0"/>
+                </xsd:sequence>
+            </xsd:complexType>
+        </xsd:element>
+    </pd:startType>
+    <pd:startX>150</pd:startX>
+    <pd:startY>64</pd:startY>
+    <pd:returnBindings>
+        <root>
+            <xsl:if test="$SyncWithoutBlank/root/SyncResponseLocation">
+                <SyncResponseLocation>
+                    <xsl:value-of select="$SyncWithoutBlank/root/SyncResponseLocation"/>
+                </SyncResponseLocation>
+            </xsl:if>
+        </root>
+    </pd:returnBindings>
+    <pd:endName>End</pd:endName>
+    <pd:endType>
+        <xsd:element name="root">
+            <xsd:complexType>
+                <xsd:sequence>
+                    <xsd:element name="SyncResponseLocation" type="xsd:string" minOccurs="0"/>
+                </xsd:sequence>
+            </xsd:complexType>
+        </xsd:element>
+    </pd:endType>
+    <pd:endX>677</pd:endX>
+    <pd:endY>68</pd:endY>
+    <pd:errorSchemas/>
+    <pd:processVariables/>
+    <pd:targetNamespace>http://xmlns.example.com/1488512401853</pd:targetNamespace>
+    <pd:activity name="Catch">
+        <pd:type>com.tibco.pe.core.CatchActivity</pd:type>
+        <pd:resourceType>ae.activities.catch</pd:resourceType>
+        <pd:x>102</pd:x>
+        <pd:y>149</pd:y>
+        <pd:handler>true</pd:handler>
+        <config>
+            <catchAll>true</catchAll>
+        </config>
+        <pd:inputBindings/>
+    </pd:activity>
+    <pd:activity name="Rethrow">
+        <pd:type>com.tibco.pe.core.RethrowActivity</pd:type>
+        <pd:resourceType>ae.activities.rethrow</pd:resourceType>
+        <pd:x>317</pd:x>
+        <pd:y>148</pd:y>
+        <config/>
+        <pd:inputBindings/>
+    </pd:activity>
+    <pd:activity name="SplitUrl">
+        <pd:type>com.tibco.pe.core.CallProcessActivity</pd:type>
+        <pd:resourceType>ae.process.subprocess</pd:resourceType>
+        <pd:x>307</pd:x>
+        <pd:y>66</pd:y>
+        <config>
+            <processName>/Level2Server/AnalysisURL.process</processName>
+        </config>
+        <pd:inputBindings>
+            <root>
+                <xsl:if test="$Start/root/requesturl">
+                    <requesturl>
+                        <xsl:value-of select="$Start/root/requesturl"/>
+                    </requesturl>
+                </xsl:if>
+            </root>
+        </pd:inputBindings>
+    </pd:activity>
+    <pd:activity name="SyncWithoutBlank">
+        <pd:type>com.tibco.pe.core.CallProcessActivity</pd:type>
+        <pd:resourceType>ae.process.subprocess</pd:resourceType>
+        <pd:x>503</pd:x>
+        <pd:y>66</pd:y>
+        <config>
+            <processName>/Level2Server/SyncWithoutBlank_sendGet.process</processName>
+        </config>
+        <pd:inputBindings>
+            <RequestActivityInput>
+                <xsl:if test="$SplitUrl/root/host">
+                    <Host>
+                        <xsl:value-of select="$SplitUrl/root/host"/>
+                    </Host>
+                </xsl:if>
+                <xsl:if test="$SplitUrl/root/requesturi">
+                    <RequestURI>
+                        <xsl:value-of select="$SplitUrl/root/requesturi"/>
+                    </RequestURI>
+                </xsl:if>
+                <xsl:if test="$SplitUrl/root/querystring">
+                    <QueryString>
+                        <xsl:value-of select="$SplitUrl/root/querystring"/>
+                    </QueryString>
+                </xsl:if>
+                <Timeout>
+                    <xsl:value-of select="60000"/>
+                </Timeout>
+                <xsl:if test="$Start/root/requesturl">
+                    <fullUrl>
+                        <xsl:value-of select="$Start/root/requesturl"/>
+                    </fullUrl>
+                </xsl:if>
+            </RequestActivityInput>
+        </pd:inputBindings>
+    </pd:activity>
+    <pd:transition>
+        <pd:from>Catch</pd:from>
+        <pd:to>Rethrow</pd:to>
+        <pd:lineType>Default</pd:lineType>
+        <pd:lineColor>-16777216</pd:lineColor>
+        <pd:conditionType>always</pd:conditionType>
+    </pd:transition>
+    <pd:transition>
+        <pd:from>Start</pd:from>
+        <pd:to>SplitUrl</pd:to>
+        <pd:lineType>Default</pd:lineType>
+        <pd:lineColor>-16777216</pd:lineColor>
+        <pd:conditionType>always</pd:conditionType>
+    </pd:transition>
+    <pd:transition>
+        <pd:from>SplitUrl</pd:from>
+        <pd:to>SyncWithoutBlank</pd:to>
+        <pd:lineType>Default</pd:lineType>
+        <pd:lineColor>-16777216</pd:lineColor>
+        <pd:conditionType>always</pd:conditionType>
+    </pd:transition>
+    <pd:transition>
+        <pd:from>SyncWithoutBlank</pd:from>
+        <pd:to>End</pd:to>
+        <pd:lineType>Default</pd:lineType>
+        <pd:lineColor>-16777216</pd:lineColor>
+        <pd:conditionType>always</pd:conditionType>
+    </pd:transition>
+</pd:ProcessDefinition>

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<pd:ProcessDefinition xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:pd="http://xmlns.tibco.com/bw/process/2003">
+    <pd:name>Level2Server/TestGrep.process</pd:name>
+    <pd:startName>Start</pd:startName>
+    <pd:startX>150</pd:startX>
+    <pd:startY>64</pd:startY>
+    <pd:returnBindings/>
+    <pd:endName>End</pd:endName>
+    <pd:endX>450</pd:endX>
+    <pd:endY>64</pd:endY>
+    <pd:errorSchemas/>
+    <pd:processVariables/>
+    <pd:targetNamespace>http://xmlns.example.com/1490934477076</pd:targetNamespace>
+    <pd:activity name="External Command">
+        <pd:type>com.tibco.plugin.cmdexec.CmdExecActivity</pd:type>
+        <pd:resourceType>ae.activities.CmdExecActivity</pd:resourceType>
+        <pd:x>289</pd:x>
+        <pd:y>64</pd:y>
+        <config>
+            <outputToString>true</outputToString>
+            <lineSplit>None</lineSplit>
+        </config>
+        <pd:inputBindings>
+            <CmdInput>
+                <command>
+                    <xsl:value-of select="&quot;grep -m1 -i 501c78 f:\log\click\2017-03-30\click.log_2017-03-30T18&quot;"/>
+                </command>
+                <environment>
+                    <xsl:value-of select="&quot;PATH=C:\ProgramData\Oracle\Java\javapath;E:\tibco513\tibrv\8.4\bin;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Program Files (x86)\MySQL\MySQL Server 5.5\bin;C:\Python27;C:\Python27\Scripts;C:\Program Files (x86)\MySQL\MySQL Server 5.5\bin;E:\SoftWares\Tools\cmder\vendor\git-for-windows\usr\bin;E:\SoftWares\Tools\Redis-x64-3.2.100\;E:\SoftWares\Tools\cmder\vendor\git-for-windows\usr\bin\;C:\Program Files\OpenSSH\bin;E:\SoftWares\Tools\Redis-x64-3.2.100\;E:\Program Files\Vim\vim74\;C:\Windows\SysWOW64\bsh\bin\;E:\SoftWares\Tools\cmder\vendor\git-for-windows\usr\bin\;C:\ProgramData\chocolatey\bin\ack.cmd;C:\ProgramData\chocolatey\bin;C:\Strawberry\c\bin;C:\Strawberry\perl\site\bin;C:\Strawberry\perl\bin&quot;"/>
+                </environment>
+            </CmdInput>
+        </pd:inputBindings>
+    </pd:activity>
+    <pd:transition>
+        <pd:from>Start</pd:from>
+        <pd:to>External Command</pd:to>
+        <pd:lineType>Default</pd:lineType>
+        <pd:lineColor>-16777216</pd:lineColor>
+        <pd:conditionType>always</pd:conditionType>
+    </pd:transition>
+    <pd:transition>
+        <pd:from>External Command</pd:from>
+        <pd:to>End</pd:to>
+        <pd:lineType>Default</pd:lineType>
+        <pd:lineColor>-16777216</pd:lineColor>
+        <pd:conditionType>always</pd:conditionType>
+    </pd:transition>
+</pd:ProcessDefinition>

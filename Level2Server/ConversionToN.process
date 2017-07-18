@@ -1,0 +1,239 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<pd:ProcessDefinition xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:pd="http://xmlns.tibco.com/bw/process/2003" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:tib="http://www.tibco.com/bw/xslt/custom-functions">
+    <pd:name>Level2Server/ConversionToN.process</pd:name>
+    <pd:startName>Start</pd:startName>
+    <pd:startType>
+        <xsd:element name="root">
+            <xsd:complexType>
+                <xsd:sequence>
+                    <xsd:element name="host" type="xsd:string" minOccurs="0"/>
+                    <xsd:element name="requestUrl" type="xsd:string" minOccurs="0"/>
+                    <xsd:element name="timeout" type="xsd:int" minOccurs="0"/>
+                    <xsd:element name="repeatTimes" type="xsd:int" minOccurs="0"/>
+                    <xsd:element name="requestUrl_real" type="xsd:string" minOccurs="0"/>
+                    <xsd:element name="queryString" type="xsd:string" minOccurs="0"/>
+                    <xsd:element name="fullurl" type="xsd:string" minOccurs="0"/>
+                </xsd:sequence>
+            </xsd:complexType>
+        </xsd:element>
+    </pd:startType>
+    <pd:startX>75</pd:startX>
+    <pd:startY>64</pd:startY>
+    <pd:returnBindings/>
+    <pd:endName>End</pd:endName>
+    <pd:endX>450</pd:endX>
+    <pd:endY>64</pd:endY>
+    <pd:errorSchemas/>
+    <pd:processVariables/>
+    <pd:targetNamespace>http://xmlns.example.com/1481267427959</pd:targetNamespace>
+    <pd:group name="Group">
+        <pd:type>com.tibco.pe.core.LoopGroup</pd:type>
+        <pd:resourceType>ae.process.group</pd:resourceType>
+        <pd:x>194</pd:x>
+        <pd:y>2</pd:y>
+        <pd:width>185</pd:width>
+        <pd:height>140</pd:height>
+        <pd:collapsedWidth>57</pd:collapsedWidth>
+        <pd:collapsedHeight>70</pd:collapsedHeight>
+        <pd:groupVariables/>
+        <pd:joinToggle>inherit</pd:joinToggle>
+        <config>
+            <pd:groupType>errorLoop</pd:groupType>
+            <pd:serializable>false</pd:serializable>
+            <pd:indexSlot>index</pd:indexSlot>
+            <pd:errorCondition>$index&gt;$Start/root/repeatTimes</pd:errorCondition>
+            <pd:suspendAfterErrorRetry>false</pd:suspendAfterErrorRetry>
+        </config>
+        <pd:inputBindings/>
+        <pd:expanded>true</pd:expanded>
+        <pd:transition>
+            <pd:from>start</pd:from>
+            <pd:to>SendToReplacedUrl</pd:to>
+            <pd:lineType>Default</pd:lineType>
+            <pd:lineColor>-16777216</pd:lineColor>
+            <pd:conditionType>always</pd:conditionType>
+        </pd:transition>
+        <pd:transition>
+            <pd:from>SendToReplacedUrl</pd:from>
+            <pd:to>end</pd:to>
+            <pd:lineType>Default</pd:lineType>
+            <pd:lineColor>-16777216</pd:lineColor>
+            <pd:conditionType>always</pd:conditionType>
+        </pd:transition>
+        <pd:activity name="SendToReplacedUrl">
+            <pd:type>com.tibco.plugin.http.client.HttpRequestActivity</pd:type>
+            <pd:resourceType>httppalette.httpRequest</pd:resourceType>
+            <pd:x>273</pd:x>
+            <pd:y>65</pd:y>
+            <config>
+                <inputOutputVersion>5.3.0</inputOutputVersion>
+                <newMimeSupport>true</newMimeSupport>
+                <authScheme>NONE</authScheme>
+                <InputHeaders>
+                    <xsd:element name="root">
+                        <xsd:complexType>
+                            <xsd:sequence>
+                                <xsd:element name="Accept" type="xsd:string" minOccurs="0"/>
+                                <xsd:element name="Accept-Charset" type="xsd:string" minOccurs="0"/>
+                                <xsd:element name="Accept-Encoding" type="xsd:string" minOccurs="0"/>
+                                <xsd:element name="Content-Type" type="xsd:string" minOccurs="0"/>
+                                <xsd:element name="Cookie" type="xsd:string" minOccurs="0"/>
+                                <xsd:element name="Pragma" type="xsd:string" minOccurs="0"/>
+                            </xsd:sequence>
+                        </xsd:complexType>
+                    </xsd:element>
+                </InputHeaders>
+                <OutputHeaders>
+                    <xsd:element name="root">
+                        <xsd:complexType>
+                            <xsd:sequence>
+                                <xsd:element name="Allow" type="xsd:string" minOccurs="0"/>
+                                <xsd:element name="Content-Type" type="xsd:string" minOccurs="0"/>
+                                <xsd:element name="Content-Length" type="xsd:string" minOccurs="0"/>
+                                <xsd:element name="Content-Encoding" type="xsd:string" minOccurs="0"/>
+                                <xsd:element name="Date" type="xsd:string" minOccurs="0"/>
+                                <xsd:element name="Location" type="xsd:string" minOccurs="0"/>
+                                <xsd:element name="Set-Cookie" type="xsd:string" minOccurs="0"/>
+                                <xsd:element name="Pragma" type="xsd:string" minOccurs="0"/>
+                            </xsd:sequence>
+                        </xsd:complexType>
+                    </xsd:element>
+                </OutputHeaders>
+            </config>
+            <pd:inputBindings>
+                <RequestActivityInput>
+                    <Host>
+                        <xsl:value-of select="$Start/root/host"/>
+                    </Host>
+                    <xsl:if test="$Start/root/requestUrl_real">
+                        <RequestURI>
+                            <xsl:value-of select="$Start/root/requestUrl_real"/>
+                        </RequestURI>
+                    </xsl:if>
+                    <xsl:if test="$Start/root/queryString">
+                        <QueryString>
+                            <xsl:value-of select="$Start/root/queryString"/>
+                        </QueryString>
+                    </xsl:if>
+                    <Timeout>
+                        <xsl:value-of select="$Start/root/timeout"/>
+                    </Timeout>
+                </RequestActivityInput>
+            </pd:inputBindings>
+        </pd:activity>
+    </pd:group>
+    <pd:activity name="Catch">
+        <pd:type>com.tibco.pe.core.CatchActivity</pd:type>
+        <pd:resourceType>ae.activities.catch</pd:resourceType>
+        <pd:x>705</pd:x>
+        <pd:y>64</pd:y>
+        <pd:handler>true</pd:handler>
+        <config>
+            <catchAll>true</catchAll>
+        </config>
+        <pd:inputBindings/>
+    </pd:activity>
+    <pd:activity name="SendAlertEmail_HTTPError">
+        <pd:type>com.tibco.pe.core.CallProcessActivity</pd:type>
+        <pd:resourceType>ae.process.subprocess</pd:resourceType>
+        <pd:x>582</pd:x>
+        <pd:y>65</pd:y>
+        <config>
+            <processName>/Level2Server/SendAlertMail.process</processName>
+            <spawn>true</spawn>
+        </config>
+        <pd:inputBindings>
+            <root>
+                <subjectandcontent>
+                    <xsl:value-of select="concat(&#xA;&quot; http send request gets error against  : &#xA; &quot;,&#xA;tib:render-xml($Start/root),&#xA;&#xA;&quot;reason :&#xA;&quot;,&#xA;$Catch/exceptiondata/*&#xA;)"/>
+                </subjectandcontent>
+                <subject>
+                    <xsl:value-of select="&quot;Win Conversion To N Gets Error&quot;"/>
+                </subject>
+            </root>
+        </pd:inputBindings>
+    </pd:activity>
+    <pd:activity name="Call Process">
+        <pd:type>com.tibco.pe.core.CallProcessActivity</pd:type>
+        <pd:resourceType>ae.process.subprocess</pd:resourceType>
+        <pd:x>264</pd:x>
+        <pd:y>219</pd:y>
+        <config>
+            <processName>/Level2Server/SyncWithoutBlank_sendGet.process</processName>
+            <spawn>false</spawn>
+        </config>
+        <pd:inputBindings>
+            <RequestActivityInput>
+                <xsl:if test="$Start/root/host">
+                    <Host>
+                        <xsl:value-of select="$Start/root/host"/>
+                    </Host>
+                </xsl:if>
+                <xsl:if test="$Start/root/requestUrl_real">
+                    <RequestURI>
+                        <xsl:value-of select="$Start/root/requestUrl_real"/>
+                    </RequestURI>
+                </xsl:if>
+                <xsl:if test="$Start/root/queryString">
+                    <QueryString>
+                        <xsl:value-of select="$Start/root/queryString"/>
+                    </QueryString>
+                </xsl:if>
+                <xsl:if test="$Start/root/timeout">
+                    <Timeout>
+                        <xsl:value-of select="$Start/root/timeout"/>
+                    </Timeout>
+                </xsl:if>
+                <xsl:if test="$Start/root/fullurl">
+                    <fullUrl>
+                        <xsl:value-of select="$Start/root/fullurl"/>
+                    </fullUrl>
+                </xsl:if>
+            </RequestActivityInput>
+        </pd:inputBindings>
+    </pd:activity>
+    <pd:transition>
+        <pd:from>Start</pd:from>
+        <pd:to>Group</pd:to>
+        <pd:lineType>Default</pd:lineType>
+        <pd:lineColor>-16777216</pd:lineColor>
+        <pd:conditionType>xpath</pd:conditionType>
+        <pd:xpath>1=2</pd:xpath>
+    </pd:transition>
+    <pd:transition>
+        <pd:from>Group</pd:from>
+        <pd:to>End</pd:to>
+        <pd:lineType>Default</pd:lineType>
+        <pd:lineColor>-16777216</pd:lineColor>
+        <pd:conditionType>always</pd:conditionType>
+    </pd:transition>
+    <pd:transition>
+        <pd:from>Catch</pd:from>
+        <pd:to>SendAlertEmail_HTTPError</pd:to>
+        <pd:lineType>Default</pd:lineType>
+        <pd:lineColor>-16777216</pd:lineColor>
+        <pd:conditionType>always</pd:conditionType>
+    </pd:transition>
+    <pd:transition>
+        <pd:from>SendAlertEmail_HTTPError</pd:from>
+        <pd:to>End</pd:to>
+        <pd:lineType>Default</pd:lineType>
+        <pd:lineColor>-16777216</pd:lineColor>
+        <pd:conditionType>always</pd:conditionType>
+    </pd:transition>
+    <pd:transition>
+        <pd:from>Start</pd:from>
+        <pd:to>Call Process</pd:to>
+        <pd:xpathDescription>default</pd:xpathDescription>
+        <pd:lineType>Default</pd:lineType>
+        <pd:lineColor>-16777216</pd:lineColor>
+        <pd:conditionType>otherwise</pd:conditionType>
+    </pd:transition>
+    <pd:transition>
+        <pd:from>Call Process</pd:from>
+        <pd:to>End</pd:to>
+        <pd:lineType>Default</pd:lineType>
+        <pd:lineColor>-16777216</pd:lineColor>
+        <pd:conditionType>always</pd:conditionType>
+    </pd:transition>
+</pd:ProcessDefinition>

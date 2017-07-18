@@ -1,0 +1,29 @@
+<?xml version = "1.0" encoding = "UTF-8"?>
+<repository xmlns:xsi = "http://www.w3.org/2001/XMLSchema-instance" xmlns = "http://www.tibco.com/xmlns/repo/types/2002">
+	<globalVariables>
+		<globalVariable>
+			<name>ConversionLog</name>
+			<value>E:\SoftWares\Project\log\conversion\conversion.log</value>
+			<deploymentSettable>true</deploymentSettable>
+			<serviceSettable>false</serviceSettable>
+			<type>String</type>
+			<modTime>1480335495642</modTime>
+		</globalVariable>
+		<globalVariable>
+			<name>clicktoconversionlog</name>
+			<value>E:\SoftWares\Project\log\clicktoconversion\</value>
+			<deploymentSettable>true</deploymentSettable>
+			<serviceSettable>false</serviceSettable>
+			<type>String</type>
+			<modTime>1480335495642</modTime>
+		</globalVariable>
+		<globalVariable>
+			<name>testlog</name>
+			<value>E:\SoftWares\Project\log\testlog\testredis.log</value>
+			<deploymentSettable>true</deploymentSettable>
+			<serviceSettable>false</serviceSettable>
+			<type>String</type>
+			<modTime>1480335495642</modTime>
+		</globalVariable>
+	</globalVariables>
+</repository>

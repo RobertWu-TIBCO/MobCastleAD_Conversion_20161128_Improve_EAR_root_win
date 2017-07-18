@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<pd:ProcessDefinition xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:pd="http://xmlns.tibco.com/bw/process/2003" xmlns:ns="http://www.tibco.com/pe/DeployedVarsType" xmlns:ns2="http://www.tibco.com/namespaces/tnt/plugins/file" xmlns:tib="http://www.tibco.com/bw/xslt/custom-functions" xmlns:ns3="http://www.tibco.com/namespaces/tnt/plugins/file/v2">
+    <pd:name>Level3Server/RefreshConversionLog_Manual_2017.process</pd:name>
+    <pd:startName>Start</pd:startName>
+    <pd:startX>47</pd:startX>
+    <pd:startY>34</pd:startY>
+    <pd:returnBindings/>
+    <pd:endName>End</pd:endName>
+    <pd:endX>180</pd:endX>
+    <pd:endY>35</pd:endY>
+    <pd:errorSchemas/>
+    <pd:processVariables/>
+    <pd:targetNamespace>http://xmlns.example.com/1474302164280</pd:targetNamespace>
+    <pd:activity name="Redis">
+        <pd:type>com.tibco.plugin.java.JavaActivity</pd:type>
+        <pd:resourceType>ae.javapalette.javaActivity</pd:resourceType>
+        <pd:x>46</pd:x>
+        <pd:y>152</pd:y>
+        <config>
+            <fileName>RefreshConversionLog_Manual_2017Redis</fileName>
+            <packageName>Level3Server.RefreshConversionLog_Manual_2017</packageName>
+            <fullsource>package Level3Server.RefreshConversionLog_Manual_2017;
+import java.util.*;
+import java.io.*;
+import redis.clients.jedis.Jedis;     
+public class RefreshConversionLog_Manual_2017Redis{
+/****** START SET/GET METHOD, DO NOT MODIFY *****/
+	protected String log = "";
+	protected Object logobj = null;
+	protected String[] allCampCounters = null;
+	protected String allconversioncounter = "";
+	public String getlog() {
+		return log;
+	}
+	public void setlog(String val) {
+		log = val;
+	}
+	public Object getlogobj() {
+		return logobj;
+	}
+	public void setlogobj(Object val) {
+		logobj = val;
+	}
+	public String[] getallCampCounters() {
+		return allCampCounters;
+	}
+	public void setallCampCounters(String[] val) {
+		allCampCounters = val;
+	}
+	public String getallconversioncounter() {
+		return allconversioncounter;
+	}
+	public void setallconversioncounter(String val) {
+		allconversioncounter = val;
+	}
+/****** END SET/GET METHOD, DO NOT MODIFY *****/
+	public RefreshConversionLog_Manual_2017Redis() {
+	}
+	public void invoke() throws Exception {
+/* Available Variables: DO NOT MODIFY
+	Out : String log
+	Out : Object logobj
+	Out : String[] allCampCounters
+	Out : String allconversioncounter
+* Available Variables: DO NOT MODIFY *****/
+
+  Jedis jedis =  new Jedis("127.0.0.1",6379,100000); 
+	jedis.auth("!VMD1kult");
+	logobj=jedis.lrange("conversionLogList", 0, -1);
+	
+	log=logobj.toString();
+	log=log.replaceAll(", 20","20");
+allconversioncounter=jedis.hgetAll("conversionCounter").toString();
+allCampCounters=allconversioncounter.replaceAll("\\{","").replaceAll("\\}","").split(",");
+jedis.del("conversionLogList"); }
+}
+</fullsource>
+            <outputData>
+                <row>
+                    <fieldName>log</fieldName>
+                    <fieldType>string</fieldType>
+                    <fieldRequired>optional</fieldRequired>
+                </row>
+                <row>
+                    <fieldName>logobj</fieldName>
+                    <fieldType>ObjectReference</fieldType>
+                    <fieldRequired>optional</fieldRequired>
+                </row>
+                <row>
+                    <fieldName>allCampCounters</fieldName>
+                    <fieldType>string</fieldType>
+                    <fieldRequired>repeating</fieldRequired>
+                </row>
+                <row>
+                    <fieldName>allconversioncounter</fieldName>
+                    <fieldType>string</fieldType>
+                    <fieldRequired>optional</fieldRequired>
+                </row>
+            </outputData>
+            <byteCode>
+                <class>
+                    <name>RefreshConversionLog_Manual_2017Redis</name>
+                    <byteCode>yv66vgAAADQAZwkAHQA9CQAdAD4JAB0APwkAHQBACgAeAEEIAEIHAEMIAEQDAAGGoAoABwBFCABGCgAHAEcIAEgF//////////8KAAcASQoAHgBKCABLCABMCgAbAE0IAE4KAAcATwgAUAgAUQgAUgoAGwBTBwBUCgAHAFUHAFYHAFcBAANsb2cBABJMamF2YS9sYW5nL1N0cmluZzsBAAZsb2dvYmoBABJMamF2YS9sYW5nL09iamVjdDsBAA9hbGxDYW1wQ291bnRlcnMBABNbTGphdmEvbGFuZy9TdHJpbmc7AQAUYWxsY29udmVyc2lvbmNvdW50ZXIBAAZnZXRsb2cBABQoKUxqYXZhL2xhbmcvU3RyaW5nOwEABENvZGUBAA9MaW5lTnVtYmVyVGFibGUBAAZzZXRsb2cBABUoTGphdmEvbGFuZy9TdHJpbmc7KVYBAAlnZXRsb2dvYmoBABQoKUxqYXZhL2xhbmcvT2JqZWN0OwEACXNldGxvZ29iagEAFShMamF2YS9sYW5nL09iamVjdDspVgEAEmdldGFsbENhbXBDb3VudGVycwEAFSgpW0xqYXZhL2xhbmcvU3RyaW5nOwEAEnNldGFsbENhbXBDb3VudGVycwEAFihbTGphdmEvbGFuZy9TdHJpbmc7KVYBABdnZXRhbGxjb252ZXJzaW9uY291bnRlcgEAF3NldGFsbGNvbnZlcnNpb25jb3VudGVyAQAGPGluaXQ+AQADKClWAQAGaW52b2tlAQAKRXhjZXB0aW9ucwcAWAEAClNvdXJjZUZpbGUBACpSZWZyZXNoQ29udmVyc2lvbkxvZ19NYW51YWxfMjAxN1JlZGlzLmphdmEMAB8AIAwAIQAiDAAjACQMACUAIAwANgA3AQAAAQAZcmVkaXMvY2xpZW50cy9qZWRpcy9KZWRpcwEACTEyNy4wLjAuMQwANgBZAQAJIVZNRDFrdWx0DABaAFsBABFjb252ZXJzaW9uTG9nTGlzdAwAXABdDABeACcBAAQsIDIwAQACMjAMAF8AYAEAEWNvbnZlcnNpb25Db3VudGVyDABhAGIBAAJcewEAAlx9AQABLAwAYwBkAQAQamF2YS9sYW5nL1N0cmluZwwAZQBmAQBTTGV2ZWwzU2VydmVyL1JlZnJlc2hDb252ZXJzaW9uTG9nX01hbnVhbF8yMDE3L1JlZnJlc2hDb252ZXJzaW9uTG9nX01hbnVhbF8yMDE3UmVkaXMBABBqYXZhL2xhbmcvT2JqZWN0AQATamF2YS9sYW5nL0V4Y2VwdGlvbgEAFyhMamF2YS9sYW5nL1N0cmluZztJSSlWAQAEYXV0aAEAJihMamF2YS9sYW5nL1N0cmluZzspTGphdmEvbGFuZy9TdHJpbmc7AQAGbHJhbmdlAQAmKExqYXZhL2xhbmcvU3RyaW5nO0pKKUxqYXZhL3V0aWwvTGlzdDsBAAh0b1N0cmluZwEACnJlcGxhY2VBbGwBADgoTGphdmEvbGFuZy9TdHJpbmc7TGphdmEvbGFuZy9TdHJpbmc7KUxqYXZhL2xhbmcvU3RyaW5nOwEAB2hnZXRBbGwBACMoTGphdmEvbGFuZy9TdHJpbmc7KUxqYXZhL3V0aWwvTWFwOwEABXNwbGl0AQAnKExqYXZhL2xhbmcvU3RyaW5nOylbTGphdmEvbGFuZy9TdHJpbmc7AQADZGVsAQAlKFtMamF2YS9sYW5nL1N0cmluZzspTGphdmEvbGFuZy9Mb25nOwAhAB0AHgAAAAQABAAfACAAAAAEACEAIgAAAAQAIwAkAAAABAAlACAAAAAKAAEAJgAnAAEAKAAAAB0AAQABAAAABSq0AAGwAAAAAQApAAAABgABAAAADAABACoAKwABACgAAAAiAAIAAgAAAAYqK7UAAbEAAAABACkAAAAKAAIAAAAPAAUAEAABACwALQABACgAAAAdAAEAAQAAAAUqtAACsAAAAAEAKQAAAAYAAQAAABIAAQAuAC8AAQAoAAAAIgACAAIAAAAGKiu1AAKxAAAAAQApAAAACgACAAAAFQAFABYAAQAwADEAAQAoAAAAHQABAAEAAAAFKrQAA7AAAAABACkAAAAGAAEAAAAYAAEAMgAzAAEAKAAAACIAAgACAAAABiortQADsQAAAAEAKQAAAAoAAgAAABsABQAcAAEANAAnAAEAKAAAAB0AAQABAAAABSq0AASwAAAAAQApAAAABgABAAAAHgABADUAKwABACgAAAAiAAIAAgAAAAYqK7UABLEAAAABACkAAAAKAAIAAAAhAAUAIgABADYANwABACgAAABHAAIAAQAAABsqtwAFKhIGtQABKgG1AAIqAbUAAyoSBrUABLEAAAABACkAAAAaAAYAAAAkAAQABwAKAAgADwAJABQACgAaACUAAQA4ADcAAgAoAAAAqQAHAAIAAAB1uwAHWRIIERjrEgm3AApMKxILtgAMVyorEg0JFAAOtgAQtQACKiq0AAK2ABG1AAEqKrQAARISEhO2ABS1AAEqKxIVtgAWtgARtQAEKiq0AAQSFxIGtgAUEhgSBrYAFBIZtgAatQADKwS9ABtZAxINU7YAHFexAAAAAQApAAAAIgAIAAAALgAPAC8AFgAwACQAMgAvADMAPgA0AEsANQBmADYAOQAAAAQAAQA6AAEAOwAAAAIAPA==</byteCode>
+                </class>
+            </byteCode>
+        </config>
+        <pd:inputBindings/>
+    </pd:activity>
+    <pd:activity name="Write File">
+        <pd:type>com.tibco.plugin.file.FileWriteActivity</pd:type>
+        <pd:resourceType>ae.activities.FileWriteActivity</pd:resourceType>
+        <pd:x>177</pd:x>
+        <pd:y>154</pd:y>
+        <config>
+            <encoding>text</encoding>
+            <compressFile>None</compressFile>
+            <append>true</append>
+            <createMissingDirectories>true</createMissingDirectories>
+        </config>
+        <pd:inputBindings>
+            <ns2:WriteActivityInputTextClass>
+                <fileName>
+                    <xsl:value-of select="&quot;F:\log\conversion\manual2017.txt&quot;"/>
+                </fileName>
+                <textContent>
+                    <xsl:value-of select="tib:substring-before-last(substring-after($Redis/javaCodeActivityOutput/log,&quot;[&quot;), &quot;]&quot;)"/>
+                </textContent>
+            </ns2:WriteActivityInputTextClass>
+        </pd:inputBindings>
+    </pd:activity>
+    <pd:transition>
+        <pd:from>Redis</pd:from>
+        <pd:to>Write File</pd:to>
+        <pd:lineType>Default</pd:lineType>
+        <pd:lineColor>-16777216</pd:lineColor>
+        <pd:conditionType>always</pd:conditionType>
+    </pd:transition>
+    <pd:transition>
+        <pd:from>Write File</pd:from>
+        <pd:to>End</pd:to>
+        <pd:lineType>Default</pd:lineType>
+        <pd:lineColor>-16777216</pd:lineColor>
+        <pd:conditionType>always</pd:conditionType>
+    </pd:transition>
+    <pd:transition>
+        <pd:from>Start</pd:from>
+        <pd:to>Redis</pd:to>
+        <pd:lineType>Default</pd:lineType>
+        <pd:lineColor>-16777216</pd:lineColor>
+        <pd:conditionType>always</pd:conditionType>
+    </pd:transition>
+</pd:ProcessDefinition>

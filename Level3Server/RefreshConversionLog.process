@@ -1,0 +1,325 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<pd:ProcessDefinition xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:pd="http://xmlns.tibco.com/bw/process/2003" xmlns:ns="http://www.tibco.com/pe/DeployedVarsType" xmlns:ns2="http://www.tibco.com/namespaces/tnt/plugins/file" xmlns:tib="http://www.tibco.com/bw/xslt/custom-functions" xmlns:ns3="http://www.tibco.com/namespaces/tnt/plugins/file/v2">
+    <pd:name>Level3Server/RefreshConversionLog.process</pd:name>
+    <pd:startName>Timer</pd:startName>
+    <pd:startX>0</pd:startX>
+    <pd:startY>0</pd:startY>
+    <pd:returnBindings/>
+    <pd:starter name="Timer">
+        <pd:type>com.tibco.plugin.timer.TimerEventSource</pd:type>
+        <pd:resourceType>ae.activities.timer</pd:resourceType>
+        <pd:x>48</pd:x>
+        <pd:y>45</pd:y>
+        <config>
+            <StartTime>1474559700000</StartTime>
+            <Frequency>false</Frequency>
+            <TimeInterval>1</TimeInterval>
+            <FrequencyIndex>Hour</FrequencyIndex>
+        </config>
+        <pd:inputBindings/>
+    </pd:starter>
+    <pd:endName>End</pd:endName>
+    <pd:endX>418</pd:endX>
+    <pd:endY>133</pd:endY>
+    <pd:errorSchemas/>
+    <pd:processVariables/>
+    <pd:targetNamespace>http://xmlns.example.com/1474302164280</pd:targetNamespace>
+    <pd:activity name="Rename File">
+        <pd:type>com.tibco.plugin.file.FileRenameActivity</pd:type>
+        <pd:resourceType>ae.activities.FileRenameActivity</pd:resourceType>
+        <pd:x>162</pd:x>
+        <pd:y>43</pd:y>
+        <config>
+            <createMissingDirectories>true</createMissingDirectories>
+            <overwrite>true</overwrite>
+        </config>
+        <pd:inputBindings>
+            <ns2:RenameActivityConfig>
+                <fromFileName>
+                    <xsl:value-of select="$_globalVariables/ns:GlobalVariables/Log/ConversionLog"/>
+                </fromFileName>
+                <toFileName>
+                    <xsl:value-of select="concat(tib:substring-before-last($_globalVariables/ns:GlobalVariables/Log/ConversionLog,&quot;\&quot;),&quot;\&quot;,substring-before(current-date(), &quot;+&quot;),&quot;\conversion.log&quot;,&quot;_&quot;,substring-before(current-dateTime(), &quot;:&quot;))"/>
+                </toFileName>
+            </ns2:RenameActivityConfig>
+        </pd:inputBindings>
+    </pd:activity>
+    <pd:activity name="Create File">
+        <pd:type>com.tibco.plugin.file.FileCreateActivity</pd:type>
+        <pd:resourceType>ae.activities.FileCreateActivity</pd:resourceType>
+        <pd:x>282</pd:x>
+        <pd:y>45</pd:y>
+        <config>
+            <overwrite>true</overwrite>
+            <createMissingDirectories>true</createMissingDirectories>
+        </config>
+        <pd:inputBindings>
+            <ns2:CreateActivityInputClass>
+                <fileName>
+                    <xsl:value-of select="$_globalVariables/ns:GlobalVariables/Log/ConversionLog"/>
+                </fileName>
+            </ns2:CreateActivityInputClass>
+        </pd:inputBindings>
+    </pd:activity>
+    <pd:activity name="GeneratePyhtonReport">
+        <pd:type>com.tibco.plugin.cmdexec.CmdExecActivity</pd:type>
+        <pd:resourceType>ae.activities.CmdExecActivity</pd:resourceType>
+        <pd:x>283</pd:x>
+        <pd:y>137</pd:y>
+        <config>
+            <outputToString>true</outputToString>
+            <lineSplit>None</lineSplit>
+        </config>
+        <pd:inputBindings>
+            <CmdInput>
+                <command>
+                    <xsl:value-of select="concat(&quot;python conversion_report.py &quot;,substring-after($Rename-File/ns2:RenameActivityOutput/fileInfo/fullName, &quot;\log\&quot;))"/>
+                </command>
+                <workingDirectory>
+                    <xsl:value-of select="&quot;E:\SoftWares\Project\log\&quot;"/>
+                </workingDirectory>
+            </CmdInput>
+        </pd:inputBindings>
+    </pd:activity>
+    <pd:activity name="Write File">
+        <pd:type>com.tibco.plugin.file.FileWriteActivity</pd:type>
+        <pd:resourceType>ae.activities.FileWriteActivity</pd:resourceType>
+        <pd:x>162</pd:x>
+        <pd:y>154</pd:y>
+        <config>
+            <encoding>text</encoding>
+            <compressFile>None</compressFile>
+            <append>true</append>
+            <createMissingDirectories>true</createMissingDirectories>
+        </config>
+        <pd:inputBindings>
+            <ns2:WriteActivityInputTextClass>
+                <fileName>
+                    <xsl:value-of select="$_globalVariables/ns:GlobalVariables/Log/ConversionLog"/>
+                </fileName>
+                <textContent>
+                    <xsl:value-of select="tib:substring-before-last(substring-after($Redis/javaCodeActivityOutput/log,&quot;[&quot;), &quot;]&quot;)"/>
+                </textContent>
+            </ns2:WriteActivityInputTextClass>
+        </pd:inputBindings>
+    </pd:activity>
+    <pd:activity name="Catch">
+        <pd:type>com.tibco.pe.core.CatchActivity</pd:type>
+        <pd:resourceType>ae.activities.catch</pd:resourceType>
+        <pd:x>683</pd:x>
+        <pd:y>131</pd:y>
+        <pd:handler>true</pd:handler>
+        <config>
+            <catchAll>true</catchAll>
+        </config>
+        <pd:inputBindings/>
+    </pd:activity>
+    <pd:activity name="SendAlertEmail">
+        <pd:type>com.tibco.pe.core.CallProcessActivity</pd:type>
+        <pd:resourceType>ae.process.subprocess</pd:resourceType>
+        <pd:x>551</pd:x>
+        <pd:y>133</pd:y>
+        <config>
+            <processName>/Level2Server/SendAlertMail.process</processName>
+            <spawn>true</spawn>
+        </config>
+        <pd:inputBindings>
+            <root>
+                <subjectandcontent>
+                    <xsl:value-of select="$Catch/exceptiondata/*"/>
+                </subjectandcontent>
+                <subject>
+                    <xsl:value-of select="&quot;Win Conversion Hour Refresh Log Error&quot;"/>
+                </subject>
+            </root>
+        </pd:inputBindings>
+    </pd:activity>
+    <pd:group name="FreshLog">
+        <pd:type>com.tibco.pe.core.LoopGroup</pd:type>
+        <pd:resourceType>ae.process.group</pd:resourceType>
+        <pd:x>0</pd:x>
+        <pd:y>88</pd:y>
+        <pd:width>115</pd:width>
+        <pd:height>140</pd:height>
+        <pd:collapsedWidth>57</pd:collapsedWidth>
+        <pd:collapsedHeight>70</pd:collapsedHeight>
+        <pd:groupVariables/>
+        <pd:joinToggle>inherit</pd:joinToggle>
+        <config>
+            <pd:groupType>errorLoop</pd:groupType>
+            <pd:serializable>false</pd:serializable>
+            <pd:indexSlot>ilog2</pd:indexSlot>
+            <pd:errorCondition>$ilog2&gt;10</pd:errorCondition>
+            <pd:suspendAfterErrorRetry>false</pd:suspendAfterErrorRetry>
+        </config>
+        <pd:inputBindings/>
+        <pd:expanded>true</pd:expanded>
+        <pd:transition>
+            <pd:from>start</pd:from>
+            <pd:to>Redis</pd:to>
+            <pd:lineType>Default</pd:lineType>
+            <pd:lineColor>-16777216</pd:lineColor>
+            <pd:conditionType>always</pd:conditionType>
+        </pd:transition>
+        <pd:transition>
+            <pd:from>Redis</pd:from>
+            <pd:to>end</pd:to>
+            <pd:lineType>Default</pd:lineType>
+            <pd:lineColor>-16777216</pd:lineColor>
+            <pd:conditionType>always</pd:conditionType>
+        </pd:transition>
+        <pd:activity name="Redis">
+            <pd:type>com.tibco.plugin.java.JavaActivity</pd:type>
+            <pd:resourceType>ae.javapalette.javaActivity</pd:resourceType>
+            <pd:x>47</pd:x>
+            <pd:y>152</pd:y>
+            <config>
+                <fileName>RefreshConversionLogRedis</fileName>
+                <packageName>Level3Server.RefreshConversionLog</packageName>
+                <fullsource>package Level3Server.RefreshConversionLog;
+import java.util.*;
+import java.io.*;
+import redis.clients.jedis.Jedis;     
+public class RefreshConversionLogRedis{
+/****** START SET/GET METHOD, DO NOT MODIFY *****/
+	protected String log = "";
+	protected Object logobj = null;
+	protected String[] allCampCounters = null;
+	protected String allconversioncounter = "";
+	public String getlog() {
+		return log;
+	}
+	public void setlog(String val) {
+		log = val;
+	}
+	public Object getlogobj() {
+		return logobj;
+	}
+	public void setlogobj(Object val) {
+		logobj = val;
+	}
+	public String[] getallCampCounters() {
+		return allCampCounters;
+	}
+	public void setallCampCounters(String[] val) {
+		allCampCounters = val;
+	}
+	public String getallconversioncounter() {
+		return allconversioncounter;
+	}
+	public void setallconversioncounter(String val) {
+		allconversioncounter = val;
+	}
+/****** END SET/GET METHOD, DO NOT MODIFY *****/
+	public RefreshConversionLogRedis() {
+	}
+	public void invoke() throws Exception {
+/* Available Variables: DO NOT MODIFY
+	Out : String log
+	Out : Object logobj
+	Out : String[] allCampCounters
+	Out : String allconversioncounter
+* Available Variables: DO NOT MODIFY *****/
+
+  Jedis jedis =  new Jedis("127.0.0.1",6379,100000); 
+	jedis.auth("!VMD1kult");
+	jedis.renamenx("conversionLogList","conversionLogList_del");
+	logobj=jedis.lrange("conversionLogList_del", 0, -1);
+	log=logobj.toString();
+	log=log.replaceAll(", 20","20");
+	log=log.replaceAll(", 20","20");
+  	log=log.replaceAll(", 20","20");
+//allconversioncounter=jedis.hgetAll("conversionCounter").toString();
+//allCampCounters=allconversioncounter.replaceAll("\\{","").replaceAll("\\}","").split(",");
+jedis.del("conversionLogList_del"); }
+}
+</fullsource>
+                <outputData>
+                    <row>
+                        <fieldName>log</fieldName>
+                        <fieldType>string</fieldType>
+                        <fieldRequired>optional</fieldRequired>
+                    </row>
+                    <row>
+                        <fieldName>logobj</fieldName>
+                        <fieldType>ObjectReference</fieldType>
+                        <fieldRequired>optional</fieldRequired>
+                    </row>
+                    <row>
+                        <fieldName>allCampCounters</fieldName>
+                        <fieldType>string</fieldType>
+                        <fieldRequired>repeating</fieldRequired>
+                    </row>
+                    <row>
+                        <fieldName>allconversioncounter</fieldName>
+                        <fieldType>string</fieldType>
+                        <fieldRequired>optional</fieldRequired>
+                    </row>
+                </outputData>
+                <byteCode>
+                    <class>
+                        <name>RefreshConversionLogRedis</name>
+                        <byteCode>yv66vgAAADQAXQkAGQA5CQAZADoJABkAOwkAGQA8CgAaAD0IAD4HAD8IAEADAAGGoAoABwBBCABCCgAHAEMIAEQIAEUKAAcARgX//////////woABwBHCgAaAEgIAEkIAEoKABcASwcATAoABwBNBwBOBwBPAQADbG9nAQASTGphdmEvbGFuZy9TdHJpbmc7AQAGbG9nb2JqAQASTGphdmEvbGFuZy9PYmplY3Q7AQAPYWxsQ2FtcENvdW50ZXJzAQATW0xqYXZhL2xhbmcvU3RyaW5nOwEAFGFsbGNvbnZlcnNpb25jb3VudGVyAQAGZ2V0bG9nAQAUKClMamF2YS9sYW5nL1N0cmluZzsBAARDb2RlAQAPTGluZU51bWJlclRhYmxlAQAGc2V0bG9nAQAVKExqYXZhL2xhbmcvU3RyaW5nOylWAQAJZ2V0bG9nb2JqAQAUKClMamF2YS9sYW5nL09iamVjdDsBAAlzZXRsb2dvYmoBABUoTGphdmEvbGFuZy9PYmplY3Q7KVYBABJnZXRhbGxDYW1wQ291bnRlcnMBABUoKVtMamF2YS9sYW5nL1N0cmluZzsBABJzZXRhbGxDYW1wQ291bnRlcnMBABYoW0xqYXZhL2xhbmcvU3RyaW5nOylWAQAXZ2V0YWxsY29udmVyc2lvbmNvdW50ZXIBABdzZXRhbGxjb252ZXJzaW9uY291bnRlcgEABjxpbml0PgEAAygpVgEABmludm9rZQEACkV4Y2VwdGlvbnMHAFABAApTb3VyY2VGaWxlAQAeUmVmcmVzaENvbnZlcnNpb25Mb2dSZWRpcy5qYXZhDAAbABwMAB0AHgwAHwAgDAAhABwMADIAMwEAAAEAGXJlZGlzL2NsaWVudHMvamVkaXMvSmVkaXMBAAkxMjcuMC4wLjEMADIAUQEACSFWTUQxa3VsdAwAUgBTAQARY29udmVyc2lvbkxvZ0xpc3QBABVjb252ZXJzaW9uTG9nTGlzdF9kZWwMAFQAVQwAVgBXDABYACMBAAQsIDIwAQACMjAMAFkAWgEAEGphdmEvbGFuZy9TdHJpbmcMAFsAXAEAO0xldmVsM1NlcnZlci9SZWZyZXNoQ29udmVyc2lvbkxvZy9SZWZyZXNoQ29udmVyc2lvbkxvZ1JlZGlzAQAQamF2YS9sYW5nL09iamVjdAEAE2phdmEvbGFuZy9FeGNlcHRpb24BABcoTGphdmEvbGFuZy9TdHJpbmc7SUkpVgEABGF1dGgBACYoTGphdmEvbGFuZy9TdHJpbmc7KUxqYXZhL2xhbmcvU3RyaW5nOwEACHJlbmFtZW54AQA2KExqYXZhL2xhbmcvU3RyaW5nO0xqYXZhL2xhbmcvU3RyaW5nOylMamF2YS9sYW5nL0xvbmc7AQAGbHJhbmdlAQAmKExqYXZhL2xhbmcvU3RyaW5nO0pKKUxqYXZhL3V0aWwvTGlzdDsBAAh0b1N0cmluZwEACnJlcGxhY2VBbGwBADgoTGphdmEvbGFuZy9TdHJpbmc7TGphdmEvbGFuZy9TdHJpbmc7KUxqYXZhL2xhbmcvU3RyaW5nOwEAA2RlbAEAJShbTGphdmEvbGFuZy9TdHJpbmc7KUxqYXZhL2xhbmcvTG9uZzsAIQAZABoAAAAEAAQAGwAcAAAABAAdAB4AAAAEAB8AIAAAAAQAIQAcAAAACgABACIAIwABACQAAAAdAAEAAQAAAAUqtAABsAAAAAEAJQAAAAYAAQAAAAwAAQAmACcAAQAkAAAAIgACAAIAAAAGKiu1AAGxAAAAAQAlAAAACgACAAAADwAFABAAAQAoACkAAQAkAAAAHQABAAEAAAAFKrQAArAAAAABACUAAAAGAAEAAAASAAEAKgArAAEAJAAAACIAAgACAAAABiortQACsQAAAAEAJQAAAAoAAgAAABUABQAWAAEALAAtAAEAJAAAAB0AAQABAAAABSq0AAOwAAAAAQAlAAAABgABAAAAGAABAC4ALwABACQAAAAiAAIAAgAAAAYqK7UAA7EAAAABACUAAAAKAAIAAAAbAAUAHAABADAAIwABACQAAAAdAAEAAQAAAAUqtAAEsAAAAAEAJQAAAAYAAQAAAB4AAQAxACcAAQAkAAAAIgACAAIAAAAGKiu1AASxAAAAAQAlAAAACgACAAAAIQAFACIAAQAyADMAAQAkAAAARwACAAEAAAAbKrcABSoSBrUAASoBtQACKgG1AAMqEga1AASxAAAAAQAlAAAAGgAGAAAAJAAEAAcACgAIAA8ACQAUAAoAGgAlAAEANAAzAAIAJAAAAKwABwACAAAAdLsAB1kSCBEY6xIJtwAKTCsSC7YADFcrEg0SDrYAD1cqKxIOCRQAELYAErUAAioqtAACtgATtQABKiq0AAESFBIVtgAWtQABKiq0AAESFBIVtgAWtQABKiq0AAESFBIVtgAWtQABKwS9ABdZAxIOU7YAGFexAAAAAQAlAAAAJgAJAAAALgAPAC8AFgAwAB8AMQAtADIAOAAzAEcANABWADUAZQA4ADUAAAAEAAEANgABADcAAAACADg=</byteCode>
+                    </class>
+                </byteCode>
+            </config>
+            <pd:inputBindings/>
+        </pd:activity>
+    </pd:group>
+    <pd:transition>
+        <pd:from>Rename File</pd:from>
+        <pd:to>Create File</pd:to>
+        <pd:lineType>Default</pd:lineType>
+        <pd:lineColor>-16777216</pd:lineColor>
+        <pd:conditionType>always</pd:conditionType>
+    </pd:transition>
+    <pd:transition>
+        <pd:from>Create File</pd:from>
+        <pd:to>GeneratePyhtonReport</pd:to>
+        <pd:lineType>Default</pd:lineType>
+        <pd:lineColor>-16777216</pd:lineColor>
+        <pd:conditionType>always</pd:conditionType>
+    </pd:transition>
+    <pd:transition>
+        <pd:from>Write File</pd:from>
+        <pd:to>Rename File</pd:to>
+        <pd:lineType>Default</pd:lineType>
+        <pd:lineColor>-16777216</pd:lineColor>
+        <pd:conditionType>always</pd:conditionType>
+    </pd:transition>
+    <pd:transition>
+        <pd:from>Catch</pd:from>
+        <pd:to>SendAlertEmail</pd:to>
+        <pd:lineType>Default</pd:lineType>
+        <pd:lineColor>-16777216</pd:lineColor>
+        <pd:conditionType>always</pd:conditionType>
+    </pd:transition>
+    <pd:transition>
+        <pd:from>SendAlertEmail</pd:from>
+        <pd:to>End</pd:to>
+        <pd:lineType>Default</pd:lineType>
+        <pd:lineColor>-16777216</pd:lineColor>
+        <pd:conditionType>always</pd:conditionType>
+    </pd:transition>
+    <pd:transition>
+        <pd:from>Timer</pd:from>
+        <pd:to>FreshLog</pd:to>
+        <pd:lineType>Default</pd:lineType>
+        <pd:lineColor>-16777216</pd:lineColor>
+        <pd:conditionType>always</pd:conditionType>
+    </pd:transition>
+    <pd:transition>
+        <pd:from>FreshLog</pd:from>
+        <pd:to>Write File</pd:to>
+        <pd:lineType>Default</pd:lineType>
+        <pd:lineColor>-16777216</pd:lineColor>
+        <pd:conditionType>always</pd:conditionType>
+    </pd:transition>
+    <pd:transition>
+        <pd:from>GeneratePyhtonReport</pd:from>
+        <pd:to>End</pd:to>
+        <pd:lineType>Default</pd:lineType>
+        <pd:lineColor>-16777216</pd:lineColor>
+        <pd:conditionType>always</pd:conditionType>
+    </pd:transition>
+</pd:ProcessDefinition>
