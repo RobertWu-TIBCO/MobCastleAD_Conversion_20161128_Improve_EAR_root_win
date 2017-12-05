@@ -39,6 +39,7 @@
                 <PropertyDefaultValue>60000</PropertyDefaultValue>
             </row>
         </HttpConnectionProperties>
+        <Host>localhost</Host>
         <Port>9095</Port>
     </config>
 </ns0:httpSharedResource>

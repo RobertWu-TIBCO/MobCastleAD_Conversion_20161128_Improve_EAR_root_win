@@ -5,7 +5,7 @@
     <config>
         <NamingEnvironment>
             <UseJNDI>false</UseJNDI>
-            <ProviderURL>tcp://localhost:7222</ProviderURL>
+            <ProviderURL>%%JmsProviderUrl%%</ProviderURL>
             <NamingURL>tibjmsnaming://localhost:7222</NamingURL>
             <NamingInitialContextFactory>com.tibco.tibjms.naming.TibjmsInitialContextFactory</NamingInitialContextFactory>
             <TopicFactoryName>TopicConnectionFactory</TopicFactoryName>
