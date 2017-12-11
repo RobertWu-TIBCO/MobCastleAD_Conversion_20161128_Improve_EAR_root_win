@@ -1,0 +1,349 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<pd:ProcessDefinition xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:pd="http://xmlns.tibco.com/bw/process/2003" xmlns:ns="http://www.tibco.com/pe/DeployedVarsType" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+    <pd:name>Cpa/ConversionSyncToCpa.process</pd:name>
+    <pd:startName>Start</pd:startName>
+    <pd:startType>
+        <xsd:element name="root">
+            <xsd:complexType>
+                <xsd:sequence>
+                    <xsd:element name="clickid" type="xsd:string" minOccurs="0"/>
+                    <xsd:element name="uris" type="xsd:string" minOccurs="0"/>
+                </xsd:sequence>
+            </xsd:complexType>
+        </xsd:element>
+    </pd:startType>
+    <pd:startX>150</pd:startX>
+    <pd:startY>64</pd:startY>
+    <pd:returnBindings/>
+    <pd:endName>End</pd:endName>
+    <pd:endX>499</pd:endX>
+    <pd:endY>65</pd:endY>
+    <pd:errorSchemas/>
+    <pd:processVariables/>
+    <pd:targetNamespace>http://xmlns.example.com/1512456189014</pd:targetNamespace>
+    <pd:activity name="CheckClickID">
+        <pd:type>com.tibco.plugin.java.JavaActivity</pd:type>
+        <pd:resourceType>ae.javapalette.javaActivity</pd:resourceType>
+        <pd:description>judge clickid to follow the conversion pattern . if  the offer_id and n_id is not in the clickid pattern, give error
+
+if yes, check DB using offer_id,n_id for campaign id</pd:description>
+        <pd:x>252</pd:x>
+        <pd:y>66</pd:y>
+        <config>
+            <fileName>ConversionSyncToCpaCheckClickID</fileName>
+            <packageName>Cpa.ConversionSyncToCpa</packageName>
+            <fullsource>package Cpa.ConversionSyncToCpa;
+import java.util.*;
+import java.io.*;
+public class ConversionSyncToCpaCheckClickID{
+/****** START SET/GET METHOD, DO NOT MODIFY *****/
+	protected String clickid = "";
+	protected String uris = "";
+	protected String inlanddomain = "";
+	protected String overseasdomain = "";
+	protected int countryInClickidIndex = 0;
+	protected String country = "";
+	protected String syncurl = "";
+	public String getclickid() {
+		return clickid;
+	}
+	public void setclickid(String val) {
+		clickid = val;
+	}
+	public String geturis() {
+		return uris;
+	}
+	public void seturis(String val) {
+		uris = val;
+	}
+	public String getinlanddomain() {
+		return inlanddomain;
+	}
+	public void setinlanddomain(String val) {
+		inlanddomain = val;
+	}
+	public String getoverseasdomain() {
+		return overseasdomain;
+	}
+	public void setoverseasdomain(String val) {
+		overseasdomain = val;
+	}
+	public int getcountryInClickidIndex() {
+		return countryInClickidIndex;
+	}
+	public void setcountryInClickidIndex(int val) {
+		countryInClickidIndex = val;
+	}
+	public String getcountry() {
+		return country;
+	}
+	public void setcountry(String val) {
+		country = val;
+	}
+	public String getsyncurl() {
+		return syncurl;
+	}
+	public void setsyncurl(String val) {
+		syncurl = val;
+	}
+/****** END SET/GET METHOD, DO NOT MODIFY *****/
+	public ConversionSyncToCpaCheckClickID() {
+	}
+	public void invoke() throws Exception {
+/* Available Variables: DO NOT MODIFY
+	In  : String clickid
+	In  : String uris
+	In  : String inlanddomain
+	In  : String overseasdomain
+	In  : int countryInClickidIndex
+	Out : String country
+	Out : String syncurl
+* Available Variables: DO NOT MODIFY *****/
+		String[] clickid_array = clickid.split("[r]");				
+		System.out.println("clickid after &amp; split : \t "+Arrays.toString(clickid_array));
+		country=clickid_array[countryInClickidIndex];
+	        if(country.equals("i")) syncurl=inlanddomain+uris;
+               if(country.equals("o")) syncurl=overseasdomain+uris;
+}
+}
+</fullsource>
+            <outputData>
+                <row>
+                    <fieldName>country</fieldName>
+                    <fieldType>string</fieldType>
+                    <fieldRequired>optional</fieldRequired>
+                </row>
+                <row>
+                    <fieldName>syncurl</fieldName>
+                    <fieldType>string</fieldType>
+                    <fieldRequired>optional</fieldRequired>
+                </row>
+            </outputData>
+            <inputData>
+                <row>
+                    <fieldName>clickid</fieldName>
+                    <fieldType>string</fieldType>
+                    <fieldRequired>optional</fieldRequired>
+                </row>
+                <row>
+                    <fieldName>uris</fieldName>
+                    <fieldType>string</fieldType>
+                    <fieldRequired>optional</fieldRequired>
+                </row>
+                <row>
+                    <fieldName>inlanddomain</fieldName>
+                    <fieldType>string</fieldType>
+                    <fieldRequired>optional</fieldRequired>
+                </row>
+                <row>
+                    <fieldName>overseasdomain</fieldName>
+                    <fieldType>string</fieldType>
+                    <fieldRequired>optional</fieldRequired>
+                </row>
+                <row>
+                    <fieldName>countryInClickidIndex</fieldName>
+                    <fieldType>int</fieldType>
+                    <fieldRequired>optional</fieldRequired>
+                </row>
+            </inputData>
+            <byteCode>
+                <class>
+                    <name>ConversionSyncToCpaCheckClickID</name>
+                    <byteCode>yv66vgAAADQAawkAFwA/CQAXAEAJABcAQQkAFwBCCQAXAEMJABcARAkAFwBFCgAYAEYIAEcIAEgKAEkASgkASwBMBwBNCgANAEYIAE4KAA0ATwoAUABRCgANAFIKAFMAVAgAVQoASQBWCABXBwBYBwBZAQAHY2xpY2tpZAEAEkxqYXZhL2xhbmcvU3RyaW5nOwEABHVyaXMBAAxpbmxhbmRkb21haW4BAA5vdmVyc2Vhc2RvbWFpbgEAFWNvdW50cnlJbkNsaWNraWRJbmRleAEAAUkBAAdjb3VudHJ5AQAHc3luY3VybAEACmdldGNsaWNraWQBABQoKUxqYXZhL2xhbmcvU3RyaW5nOwEABENvZGUBAA9MaW5lTnVtYmVyVGFibGUBAApzZXRjbGlja2lkAQAVKExqYXZhL2xhbmcvU3RyaW5nOylWAQAHZ2V0dXJpcwEAB3NldHVyaXMBAA9nZXRpbmxhbmRkb21haW4BAA9zZXRpbmxhbmRkb21haW4BABFnZXRvdmVyc2Vhc2RvbWFpbgEAEXNldG92ZXJzZWFzZG9tYWluAQAYZ2V0Y291bnRyeUluQ2xpY2tpZEluZGV4AQADKClJAQAYc2V0Y291bnRyeUluQ2xpY2tpZEluZGV4AQAEKEkpVgEACmdldGNvdW50cnkBAApzZXRjb3VudHJ5AQAKZ2V0c3luY3VybAEACnNldHN5bmN1cmwBAAY8aW5pdD4BAAMoKVYBAAZpbnZva2UBAA1TdGFja01hcFRhYmxlBwBaAQAKRXhjZXB0aW9ucwcAWwEAClNvdXJjZUZpbGUBACRDb252ZXJzaW9uU3luY1RvQ3BhQ2hlY2tDbGlja0lELmphdmEMABkAGgwAGwAaDAAcABoMAB0AGgwAHgAfDAAgABoMACEAGgwANgA3AQAAAQADW3JdBwBcDABdAF4HAF8MAGAAYQEAF2phdmEvbGFuZy9TdHJpbmdCdWlsZGVyAQAaY2xpY2tpZCBhZnRlciAmIHNwbGl0IDogCSAMAGIAYwcAZAwAZQBmDABlACMHAGcMAGgAJwEAAWkMAGkAagEAAW8BADdDcGEvQ29udmVyc2lvblN5bmNUb0NwYS9Db252ZXJzaW9uU3luY1RvQ3BhQ2hlY2tDbGlja0lEAQAQamF2YS9sYW5nL09iamVjdAEAE1tMamF2YS9sYW5nL1N0cmluZzsBABNqYXZhL2xhbmcvRXhjZXB0aW9uAQAQamF2YS9sYW5nL1N0cmluZwEABXNwbGl0AQAnKExqYXZhL2xhbmcvU3RyaW5nOylbTGphdmEvbGFuZy9TdHJpbmc7AQAQamF2YS9sYW5nL1N5c3RlbQEAA291dAEAFUxqYXZhL2lvL1ByaW50U3RyZWFtOwEABmFwcGVuZAEALShMamF2YS9sYW5nL1N0cmluZzspTGphdmEvbGFuZy9TdHJpbmdCdWlsZGVyOwEAEGphdmEvdXRpbC9BcnJheXMBAAh0b1N0cmluZwEAJyhbTGphdmEvbGFuZy9PYmplY3Q7KUxqYXZhL2xhbmcvU3RyaW5nOwEAE2phdmEvaW8vUHJpbnRTdHJlYW0BAAdwcmludGxuAQAGZXF1YWxzAQAVKExqYXZhL2xhbmcvT2JqZWN0OylaACEAFwAYAAAABwAEABkAGgAAAAQAGwAaAAAABAAcABoAAAAEAB0AGgAAAAQAHgAfAAAABAAgABoAAAAEACEAGgAAABAAAQAiACMAAQAkAAAAHQABAAEAAAAFKrQAAbAAAAABACUAAAAGAAEAAAAOAAEAJgAnAAEAJAAAACIAAgACAAAABiortQABsQAAAAEAJQAAAAoAAgAAABEABQASAAEAKAAjAAEAJAAAAB0AAQABAAAABSq0AAKwAAAAAQAlAAAABgABAAAAFAABACkAJwABACQAAAAiAAIAAgAAAAYqK7UAArEAAAABACUAAAAKAAIAAAAXAAUAGAABACoAIwABACQAAAAdAAEAAQAAAAUqtAADsAAAAAEAJQAAAAYAAQAAABoAAQArACcAAQAkAAAAIgACAAIAAAAGKiu1AAOxAAAAAQAlAAAACgACAAAAHQAFAB4AAQAsACMAAQAkAAAAHQABAAEAAAAFKrQABLAAAAABACUAAAAGAAEAAAAgAAEALQAnAAEAJAAAACIAAgACAAAABiortQAEsQAAAAEAJQAAAAoAAgAAACMABQAkAAEALgAvAAEAJAAAAB0AAQABAAAABSq0AAWsAAAAAQAlAAAABgABAAAAJgABADAAMQABACQAAAAiAAIAAgAAAAYqG7UABbEAAAABACUAAAAKAAIAAAApAAUAKgABADIAIwABACQAAAAdAAEAAQAAAAUqtAAGsAAAAAEAJQAAAAYAAQAAACwAAQAzACcAAQAkAAAAIgACAAIAAAAGKiu1AAaxAAAAAQAlAAAACgACAAAALwAFADAAAQA0ACMAAQAkAAAAHQABAAEAAAAFKrQAB7AAAAABACUAAAAGAAEAAAAyAAEANQAnAAEAJAAAACIAAgACAAAABiortQAHsQAAAAEAJQAAAAoAAgAAADUABQA2AAEANgA3AAEAJAAAAGYAAgABAAAALiq3AAgqEgm1AAEqEgm1AAIqEgm1AAMqEgm1AAQqA7UABSoSCbUABioSCbUAB7EAAAABACUAAAAmAAkAAAA4AAQABgAKAAcAEAAIABYACQAcAAoAIQALACcADAAtADkAAQA4ADcAAgAkAAAAvAADAAIAAACBKrQAARIKtgALTLIADLsADVm3AA4SD7YAECu4ABG2ABC2ABK2ABMqKyq0AAUytQAGKrQABhIUtgAVmQAfKrsADVm3AA4qtAADtgAQKrQAArYAELYAErUAByq0AAYSFrYAFZkAHyq7AA1ZtwAOKrQABLYAECq0AAK2ABC2ABK1AAexAAAAAgAlAAAAGgAGAAAARAAKAEUAJgBGADAARwBYAEgAgABJADkAAAAJAAL8AFgHADonADsAAAAEAAEAPAABAD0AAAACAD4=</byteCode>
+                </class>
+            </byteCode>
+        </config>
+        <pd:inputBindings>
+            <javaCodeActivityInput>
+                <xsl:if test="$Start/root/clickid">
+                    <clickid>
+                        <xsl:value-of select="$Start/root/clickid"/>
+                    </clickid>
+                </xsl:if>
+                <xsl:if test="$Start/root/uris">
+                    <uris>
+                        <xsl:value-of select="$Start/root/uris"/>
+                    </uris>
+                </xsl:if>
+                <inlanddomain>
+                    <xsl:value-of select="$_globalVariables/ns:GlobalVariables/SyncToCpa/inlanddomain"/>
+                </inlanddomain>
+                <overseasdomain>
+                    <xsl:value-of select="$_globalVariables/ns:GlobalVariables/SyncToCpa/overseasdomain"/>
+                </overseasdomain>
+                <countryInClickidIndex>
+                    <xsl:value-of select="$_globalVariables/ns:GlobalVariables/SyncToCpa/countryInClickidIndex"/>
+                </countryInClickidIndex>
+            </javaCodeActivityInput>
+        </pd:inputBindings>
+    </pd:activity>
+    <pd:activity name="SyncToCpa">
+        <pd:type>com.tibco.plugin.java.JavaActivity</pd:type>
+        <pd:resourceType>ae.javapalette.javaActivity</pd:resourceType>
+        <pd:x>370</pd:x>
+        <pd:y>66</pd:y>
+        <config>
+            <fileName>ConversionSyncToCpaSyncToCpa</fileName>
+            <packageName>Cpa.ConversionSyncToCpa</packageName>
+            <fullsource>package Cpa.ConversionSyncToCpa;
+import java.util.*;
+import java.io.*;
+
+import java.io.BufferedReader;
+import java.io.DataOutputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+
+import javax.net.ssl.HttpsURLConnection;
+
+public class ConversionSyncToCpaSyncToCpa{
+/****** START SET/GET METHOD, DO NOT MODIFY *****/
+	protected String url = "";
+	protected String USER_AGENT = "";
+	protected String responsestr = "";
+	public String geturl() {
+		return url;
+	}
+	public void seturl(String val) {
+		url = val;
+	}
+	public String getUSER_AGENT() {
+		return USER_AGENT;
+	}
+	public void setUSER_AGENT(String val) {
+		USER_AGENT = val;
+	}
+	public String getresponsestr() {
+		return responsestr;
+	}
+	public void setresponsestr(String val) {
+		responsestr = val;
+	}
+/****** END SET/GET METHOD, DO NOT MODIFY *****/
+	public ConversionSyncToCpaSyncToCpa() {
+	}
+
+
+private String sendGet(String url) throws Exception {
+ HttpURLConnection con = null;
+URL obj =null;
+StringBuffer response = new StringBuffer();
+	try {  	
+         obj = new URL(url);
+       con = (HttpURLConnection) obj.openConnection();
+  con.setConnectTimeout(9000); 
+  con.setReadTimeout(12000); 
+        //默认值我GET
+        con.setRequestMethod("GET");
+
+        //添加请求头
+      //  con.setRequestProperty("User-Agent", USER_AGENT);
+con.connect();
+       int responseCode = con.getResponseCode();
+     //   
+     System.out.println("Response Code : " + responseCode);
+
+        BufferedReader in = new BufferedReader(
+                new InputStreamReader(con.getInputStream()));
+        String inputLine;
+        
+        while ((inputLine = in.readLine()) != null) {
+            response.append(inputLine);
+        }
+        in.close();
+con.disconnect(); 
+}  
+catch(Exception e){  
+System.out.println("\nsend GET to : " + url );
+ System.out.println("result error : " + e);
+}  
+finally{  
+    if(con!=null)  
+        con.disconnect();  
+	return response.toString();
+}  
+        //打印结果
+    //    System.out.println("Response Code : " + responseCode + ". response : " + response.toString());
+
+    }
+
+	public void invoke() throws Exception {
+/* Available Variables: DO NOT MODIFY
+	In  : String url
+	In  : String USER_AGENT
+	Out : String responsestr
+	Out : String url
+* Available Variables: DO NOT MODIFY *****/
+//url=url.replace("https://","http://");
+
+//found the reason that sendGet would not cause errors in queue, cause it would not take 4xx,5xx to be caught as errors
+url=url.replaceAll(" ","%20");
+responsestr=sendGet(url);
+}
+}
+</fullsource>
+            <inputData>
+                <row>
+                    <fieldName>url</fieldName>
+                    <fieldType>string</fieldType>
+                    <fieldRequired>optional</fieldRequired>
+                </row>
+                <row>
+                    <fieldName>USER_AGENT</fieldName>
+                    <fieldType>string</fieldType>
+                    <fieldRequired>optional</fieldRequired>
+                </row>
+            </inputData>
+            <outputData>
+                <row>
+                    <fieldName>responsestr</fieldName>
+                    <fieldType>string</fieldType>
+                    <fieldRequired>optional</fieldRequired>
+                </row>
+                <row>
+                    <fieldName>url</fieldName>
+                    <fieldType>string</fieldType>
+                    <fieldRequired>optional</fieldRequired>
+                </row>
+            </outputData>
+            <byteCode>
+                <class>
+                    <name>ConversionSyncToCpaSyncToCpa</name>
+                    <byteCode>yv66vgAAADQAmQkALABNCQAsAE4JACwATwoALQBQCABRBwBSCgAGAFAHAFMKAAgAVAoACABVBwBWCgALAFcKAAsAWAgAWQoACwBaCgALAFsKAAsAXAkAXQBeBwBfCgATAFAIAGAKABMAYQoAEwBiCgATAGMKAGQAZQcAZgcAZwoACwBoCgAbAGkKABoAagoAGgBrCgAGAGwKABoAbQoACwBuCgAGAGMHAG8IAHAIAHEKABMAcggAcwgAdAoAdQB2CgAsAHcHAHgHAHkBAAN1cmwBABJMamF2YS9sYW5nL1N0cmluZzsBAApVU0VSX0FHRU5UAQALcmVzcG9uc2VzdHIBAAZnZXR1cmwBABQoKUxqYXZhL2xhbmcvU3RyaW5nOwEABENvZGUBAA9MaW5lTnVtYmVyVGFibGUBAAZzZXR1cmwBABUoTGphdmEvbGFuZy9TdHJpbmc7KVYBAA1nZXRVU0VSX0FHRU5UAQANc2V0VVNFUl9BR0VOVAEADmdldHJlc3BvbnNlc3RyAQAOc2V0cmVzcG9uc2VzdHIBAAY8aW5pdD4BAAMoKVYBAAdzZW5kR2V0AQAmKExqYXZhL2xhbmcvU3RyaW5nOylMamF2YS9sYW5nL1N0cmluZzsBAA1TdGFja01hcFRhYmxlBwB4BwB6BwBWBwBTBwBSBwBmBwBvBwB7AQAKRXhjZXB0aW9ucwEABmludm9rZQEAClNvdXJjZUZpbGUBACFDb252ZXJzaW9uU3luY1RvQ3BhU3luY1RvQ3BhLmphdmEMAC4ALwwAMAAvDAAxAC8MADwAPQEAAAEAFmphdmEvbGFuZy9TdHJpbmdCdWZmZXIBAAxqYXZhL25ldC9VUkwMADwANwwAfAB9AQAaamF2YS9uZXQvSHR0cFVSTENvbm5lY3Rpb24MAH4AfwwAgAB/AQADR0VUDACBADcMAIIAPQwAgwCEBwCFDACGAIcBABdqYXZhL2xhbmcvU3RyaW5nQnVpbGRlcgEAEFJlc3BvbnNlIENvZGUgOiAMAIgAiQwAiACKDACLADMHAIwMAI0ANwEAFmphdmEvaW8vQnVmZmVyZWRSZWFkZXIBABlqYXZhL2lvL0lucHV0U3RyZWFtUmVhZGVyDACOAI8MADwAkAwAPACRDACSADMMAIgAkwwAlAA9DACVAD0BABNqYXZhL2xhbmcvRXhjZXB0aW9uAQAPCnNlbmQgR0VUIHRvIDogAQAPcmVzdWx0IGVycm9yIDogDACIAJYBAAEgAQADJTIwBwB6DACXAJgMAD4APwEANENwYS9Db252ZXJzaW9uU3luY1RvQ3BhL0NvbnZlcnNpb25TeW5jVG9DcGFTeW5jVG9DcGEBABBqYXZhL2xhbmcvT2JqZWN0AQAQamF2YS9sYW5nL1N0cmluZwEAE2phdmEvbGFuZy9UaHJvd2FibGUBAA5vcGVuQ29ubmVjdGlvbgEAGigpTGphdmEvbmV0L1VSTENvbm5lY3Rpb247AQARc2V0Q29ubmVjdFRpbWVvdXQBAAQoSSlWAQAOc2V0UmVhZFRpbWVvdXQBABBzZXRSZXF1ZXN0TWV0aG9kAQAHY29ubmVjdAEAD2dldFJlc3BvbnNlQ29kZQEAAygpSQEAEGphdmEvbGFuZy9TeXN0ZW0BAANvdXQBABVMamF2YS9pby9QcmludFN0cmVhbTsBAAZhcHBlbmQBAC0oTGphdmEvbGFuZy9TdHJpbmc7KUxqYXZhL2xhbmcvU3RyaW5nQnVpbGRlcjsBABwoSSlMamF2YS9sYW5nL1N0cmluZ0J1aWxkZXI7AQAIdG9TdHJpbmcBABNqYXZhL2lvL1ByaW50U3RyZWFtAQAHcHJpbnRsbgEADmdldElucHV0U3RyZWFtAQAXKClMamF2YS9pby9JbnB1dFN0cmVhbTsBABgoTGphdmEvaW8vSW5wdXRTdHJlYW07KVYBABMoTGphdmEvaW8vUmVhZGVyOylWAQAIcmVhZExpbmUBACwoTGphdmEvbGFuZy9TdHJpbmc7KUxqYXZhL2xhbmcvU3RyaW5nQnVmZmVyOwEABWNsb3NlAQAKZGlzY29ubmVjdAEALShMamF2YS9sYW5nL09iamVjdDspTGphdmEvbGFuZy9TdHJpbmdCdWlsZGVyOwEACnJlcGxhY2VBbGwBADgoTGphdmEvbGFuZy9TdHJpbmc7TGphdmEvbGFuZy9TdHJpbmc7KUxqYXZhL2xhbmcvU3RyaW5nOwAhACwALQAAAAMABAAuAC8AAAAEADAALwAAAAQAMQAvAAAACQABADIAMwABADQAAAAdAAEAAQAAAAUqtAABsAAAAAEANQAAAAYAAQAAABMAAQA2ADcAAQA0AAAAIgACAAIAAAAGKiu1AAGxAAAAAQA1AAAACgACAAAAFgAFABcAAQA4ADMAAQA0AAAAHQABAAEAAAAFKrQAArAAAAABADUAAAAGAAEAAAAZAAEAOQA3AAEANAAAACIAAgACAAAABiortQACsQAAAAEANQAAAAoAAgAAABwABQAdAAEAOgAzAAEANAAAAB0AAQABAAAABSq0AAOwAAAAAQA1AAAABgABAAAAHwABADsANwABADQAAAAiAAIAAgAAAAYqK7UAA7EAAAABADUAAAAKAAIAAAAiAAUAIwABADwAPQABADQAAAA/AAIAAQAAABcqtwAEKhIFtQABKhIFtQACKhIFtQADsQAAAAEANQAAABYABQAAACUABAAPAAoAEAAQABEAFgAmAAIAPgA/AAIANAAAAeIABQAJAAAA6gFNAU67AAZZtwAHOgS7AAhZK7cACU4ttgAKwAALTSwRIyi2AAwsES7gtgANLBIOtgAPLLYAECy2ABE2BbIAErsAE1m3ABQSFbYAFhUFtgAXtgAYtgAZuwAaWbsAG1kstgActwAdtwAeOgYZBrYAH1k6B8YADhkEGQe2ACBXp//tGQa2ACEstgAiLMYAByy2ACIZBLYAI7A6BbIAErsAE1m3ABQSJbYAFiu2ABa2ABi2ABmyABK7ABNZtwAUEia2ABYZBbYAJ7YAGLYAGSzGAAcstgAiGQS2ACOwOggsxgAHLLYAIhkEtgAjsAAEAA0AiQCXACQADQCJANoAAACXAMwA2gAAANoA3ADaAAAAAgA1AAAAdgAdAAAAKgACACsABAAsAA0ALgAWAC8AHgAwACUAMQAsADMAMgA3ADYAOAA8ADoAVgA8AF8APQBqAEAAdQBBAIAAQwCFAEQAiQBLAI0ATACRAE0AlwBGAJkARwCyAEgAzABLANAATADUAE0A2gBLAOAATADkAE0AQAAAAEoAB/8AagAHBwBBBwBCBwBDBwBEBwBFAQcARgAA/AAVBwBC+AAQRQcARzxFBwBI/wAJAAkHAEEHAEIHAEMHAEQHAEUAAAAHAEgAAABJAAAABAABACQAAQBKAD0AAgA0AAAAPAAEAAEAAAAcKiq0AAESKBIptgAqtQABKioqtAABtwArtQADsQAAAAEANQAAAA4AAwAAAF4ADwBfABsAYABJAAAABAABACQAAQBLAAAAAgBM</byteCode>
+                </class>
+            </byteCode>
+        </config>
+        <pd:inputBindings>
+            <javaCodeActivityInput>
+                <url>
+                    <xsl:value-of select="$CheckClickID/javaCodeActivityOutput/syncurl"/>
+                </url>
+                <USER_AGENT>
+                    <xsl:value-of select="&quot;&quot;"/>
+                </USER_AGENT>
+            </javaCodeActivityInput>
+        </pd:inputBindings>
+    </pd:activity>
+    <pd:transition>
+        <pd:from>Start</pd:from>
+        <pd:to>CheckClickID</pd:to>
+        <pd:lineType>Default</pd:lineType>
+        <pd:lineColor>-16777216</pd:lineColor>
+        <pd:conditionType>always</pd:conditionType>
+    </pd:transition>
+    <pd:transition>
+        <pd:from>CheckClickID</pd:from>
+        <pd:to>SyncToCpa</pd:to>
+        <pd:lineType>Default</pd:lineType>
+        <pd:lineColor>-16777216</pd:lineColor>
+        <pd:conditionType>always</pd:conditionType>
+    </pd:transition>
+    <pd:transition>
+        <pd:from>SyncToCpa</pd:from>
+        <pd:to>End</pd:to>
+        <pd:lineType>Default</pd:lineType>
+        <pd:lineColor>-16777216</pd:lineColor>
+        <pd:conditionType>always</pd:conditionType>
+    </pd:transition>
+</pd:ProcessDefinition>

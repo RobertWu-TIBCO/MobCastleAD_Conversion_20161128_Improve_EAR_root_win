@@ -2,28 +2,28 @@
 <repository xmlns:xsi = "http://www.w3.org/2001/XMLSchema-instance" xmlns = "http://www.tibco.com/xmlns/repo/types/2002">
 	<globalVariables>
 		<globalVariable>
-			<name>ConversionLog</name>
-			<value>E:\SoftWares\Project\log\conversion\conversion.log</value>
+			<name>countryInClickidIndex</name>
+			<value>2</value>
 			<deploymentSettable>true</deploymentSettable>
 			<serviceSettable>false</serviceSettable>
-			<type>String</type>
-			<modTime>1480335495642</modTime>
+			<type>Integer</type>
+			<modTime>1512459304367</modTime>
 		</globalVariable>
 		<globalVariable>
-			<name>clicktoconversionlog</name>
-			<value>E:\SoftWares\Project\log\clicktoconversion\</value>
+			<name>inlanddomain</name>
+			<value>http://e.cpa.mobcastlead.com</value>
 			<deploymentSettable>true</deploymentSettable>
 			<serviceSettable>false</serviceSettable>
 			<type>String</type>
-			<modTime>1480335495642</modTime>
+			<modTime>1512986117846</modTime>
 		</globalVariable>
 		<globalVariable>
-			<name>testlog</name>
-			<value>E:\SoftWares\Project\log\testlog\testredis.log</value>
+			<name>overseasdomain</name>
+			<value>http://hk.mobcastlead.com</value>
 			<deploymentSettable>true</deploymentSettable>
 			<serviceSettable>false</serviceSettable>
 			<type>String</type>
-			<modTime>1480335495642</modTime>
+			<modTime>1512458465753</modTime>
 		</globalVariable>
 	</globalVariables>
 </repository>
