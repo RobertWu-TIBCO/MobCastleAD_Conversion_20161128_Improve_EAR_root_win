@@ -854,9 +854,10 @@ campaign_rm</pd:description>
     <pd:transition>
         <pd:from>TimeLog</pd:from>
         <pd:to>ValidateClickID</pd:to>
+        <pd:xpathDescription>WinClickCpa</pd:xpathDescription>
         <pd:lineType>Default</pd:lineType>
         <pd:lineColor>-16777216</pd:lineColor>
-        <pd:conditionType>always</pd:conditionType>
+        <pd:conditionType>otherwise</pd:conditionType>
     </pd:transition>
     <pd:transition>
         <pd:from>TimeLogEnd</pd:from>
@@ -901,14 +902,6 @@ campaign_rm</pd:description>
         <pd:conditionType>always</pd:conditionType>
     </pd:transition>
     <pd:transition>
-        <pd:from>HandleConversionRequest</pd:from>
-        <pd:to>SyncToCpa</pd:to>
-        <pd:lineType>Default</pd:lineType>
-        <pd:lineColor>-16777216</pd:lineColor>
-        <pd:conditionType>xpath</pd:conditionType>
-        <pd:xpath>$HandleConversionRequest/ProcessStarterOutput/Command="/e"</pd:xpath>
-    </pd:transition>
-    <pd:transition>
         <pd:from>SyncToCpa</pd:from>
         <pd:to>OK</pd:to>
         <pd:lineType>Default</pd:lineType>
@@ -921,5 +914,14 @@ campaign_rm</pd:description>
         <pd:lineType>Default</pd:lineType>
         <pd:lineColor>-16777216</pd:lineColor>
         <pd:conditionType>always</pd:conditionType>
+    </pd:transition>
+    <pd:transition>
+        <pd:from>TimeLog</pd:from>
+        <pd:to>SyncToCpa</pd:to>
+        <pd:xpathDescription>WenlongCpa</pd:xpathDescription>
+        <pd:lineType>Default</pd:lineType>
+        <pd:lineColor>-16777216</pd:lineColor>
+        <pd:conditionType>xpath</pd:conditionType>
+        <pd:xpath>not(contains($HandleConversionRequest/ProcessStarterOutput/parameters/clickid, "c")) or contains($HandleConversionRequest/ProcessStarterOutput/parameters/clickid, "r")</pd:xpath>
     </pd:transition>
 </pd:ProcessDefinition>
