@@ -696,13 +696,13 @@ campaign_rm</pd:description>
         </config>
         <pd:inputBindings>
             <root>
-                <xsl:if xmlns:xsl="http://www.w3.org/1999/XSL/Transform" test="$HandleConversionRequest/ProcessStarterOutput/parameters/clickid">
+                <xsl:if test="$HandleConversionRequest/ProcessStarterOutput/parameters/clickid">
                     <clickid>
                         <xsl:value-of select="$HandleConversionRequest/ProcessStarterOutput/parameters/clickid"/>
                     </clickid>
                 </xsl:if>
                 <uris>
-                    <xsl:value-of xmlns:xsl="http://www.w3.org/1999/XSL/Transform" select="$HandleConversionRequest/ProcessStarterOutput/RequestURI"/>
+                    <xsl:value-of select="$HandleConversionRequest/ProcessStarterOutput/QueryString"/>
                 </uris>
             </root>
         </pd:inputBindings>
